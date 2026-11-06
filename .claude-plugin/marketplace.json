@@ -1,0 +1,5 @@
+{
+  "name": "noggin",
+  "owner": { "name": "magayrAcosmo" },
+  "plugins": [{ "name": "noggin", "source": "./", "description": "Deterministic engineering and science for Claude Code." }]
+}

@@ -1,0 +1,5 @@
+{
+  "name": "noggin",
+  "version": "0.1.0",
+  "description": "Deterministic engineering and science: dispatch engineers and scientists from tasks.md and research.md, verify with nf-test."
+}

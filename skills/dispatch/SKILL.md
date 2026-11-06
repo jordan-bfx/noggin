@@ -1,43 +1,52 @@
 ---
 name: dispatch
-description: Dispatch sub-agents in the noggin. Read every skill's `schedule:` line, decide which are due, hand them to sub-agents, verify their work, and report. Use when asked to "dispatch" or from a agentic loop.
-disable-model-invocation: true
+description: Dispatch engineer and scientist sub-agents for the open items in the project's tasks.md and research.md, then log results to tasks.log and research.log. Use when asked to "dispatch", when tasks.md or research.md changes, or from watch.sh.
 ---
 
-# Dispatch (the expediter)
+# Dispatch
 
-One pass, then stop. Repeat it with `/loop` or a scheduled routine, never by looping yourself.
+One pass, then stop.
 
-## 1. Schedule
-- Find scheduled skills: `grep -l '^schedule:' .claude/skills/*/SKILL.md ~/.claude/skills/*/SKILL.md`. The `schedule:` line is prose saying *when* the skill should run.
-- Read `noggin/log.md` (create it if missing) for what ran recently and what is waiting at the pass.
-- Read `noggin/backlog.md` if it exists: tasks Jordan queued by hand.
-- Check `git status` and open branches so you don't redo work in flight.
+## 1. Read
+- `tasks.md` and `research.md` in the project root. An open item is a line `- [ ] ...`. Ignore `- [x]` (done) and `- [?]` (waiting on the user).
+- `tasks.log` and `research.log`, so you don't repeat work.
+- If `graphify-out/` exists, give each agent a scoped `graphify query "<question>"` result, not the whole graph.
 
-## 2. Write the tickets
-For each scheduled skill and backlog item, decide: **due**, **not due**, or **needs Jordan**.
-- Due only if its condition is clearly met by evidence you can name (a file, a date, a log entry). When unsure, it is not due.
-- At most 3 tickets per service. Skip a ticket already in the log as in progress.
+## 2. Dispatch
+Spawn one sub-agent per open item, using the Agent tool:
+- `tasks.md` item: an **engineer** for code or pipelines, a **scientist** for analysis.
+- `research.md` item: a **scientist** for one round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Give the scientist the topic's earlier `research.log` entries, so each round builds on the last and doesn't repeat it.
 
-## 3. Dispatch
-One sub-agent per ticket (Agent tool). Dispatch a from `agents/engineer.md` or `agents/scientist.md` depending on if it is a `cortex/` or `pons/` task. Each brief states:
-- the skill to follow, the objective, the exact inputs,
-- what "done" looks like and how to prove it,
-- what it must not touch.
+Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. Agents that only read can run in parallel. Run agents that write to the same files one at a time.
 
-Read-only tickets may run in parallel. Tickets that write run in their own worktree (`isolation: "worktree"`), one writer per file or dataset, and end on a branch, never main.
+## 3. Verify
+A sub-agent saying it is done is a claim, not proof. Before accepting a result:
+- Code: `Skill(verify)` must pass.
+- Research: the reported numbers must trace to a file or a DOI you can open.
 
-## 4. Verify
-Check each result yourself before accepting it: run nf-test or verification in `pons/verify/`, or if a `cortex/` task, find peer-reviewed findings/data to corroborate. A sub-agent's "done" is a claim, not proof.
+## 4. Record
+Append one entry per item, then update the item's checkbox in place:
 
-## 5. Record
-Sub-agents propose notes, and you append one entry per ticket to `noggin/log.md`:
-
+`tasks.log`
 ```
-## <YYYY-MM-DD HH:MM> <skill>: <done | failed | needs Jordan>
-- what: <one line>
-- proof: <the check you ran and its result>
-- where: <branch / file>
+## <YYYY-MM-DD HH:MM> <item>
+- status: done | blocked
+- proof: <check run and its result>
+- where: <files or branch>
 ```
 
-Then report to Jordan, leading with what needs them.
+`research.log`
+```
+## <YYYY-MM-DD HH:MM> <topic> (round k/N)
+- hypothesis: <written before looking at results>
+- method: <data, tests, every test run, including the ones that found nothing>
+- result: <effect size, n, uncertainty; null results count>
+- evidence: <file paths, DOIs>
+- next: <follow-up or open question>
+```
+
+- Research round done with rounds left: the line stays `- [ ]` and its count records progress, `(hypotheses: 3)` → `(hypotheses: 1/3)` → `(hypotheses: 2/3)`.
+- Done (a task, or a topic's last round): `- [ ]` becomes `- [x]`, e.g. `- [x] topic (hypotheses: 3/3)`.
+- Blocked or failed: `- [ ]` becomes `- [?]`, with the question in the log entry. Ask it in the CLI too if a user is present. The user sets it back to `- [ ]` to retry.
+
+Report to the user, leading with anything that is `[?]`.

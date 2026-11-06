@@ -1,18 +1,39 @@
 # noggin
 
-My portable Claude Code toolkit: house rules, agents and skills.
+A Claude Code plugin for deterministic engineering and science. Turn it on in any project.
 
 ```
-CLAUDE.md                  house rules, every project  -> ~/.claude/CLAUDE.md
-agents/<name>.md           sub-agents (stations)       -> ~/.claude/agents/
-skills/<name>/SKILL.md     recipes                     -> ~/.claude/skills/
-templates/project-CLAUDE.md  starting point for a project's own CLAUDE.md
+CLAUDE.md                 house rules, injected at session start with the project's graphify report (hooks/)
+skills/dispatch           tasks.md + research.md -> engineers/scientists -> tasks.log + research.log
+skills/verify             nf-test snapshots, built from tests/data/
+agents/                   engineer, scientist
+watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 ```
 
-On a new machine:
+## Install
+
+```
+/plugin marketplace add ~/Documents/Github/noggin
+/plugin install noggin@noggin
+```
+
+Enable it per project in `.claude/settings.json`:
+```json
+{ "enabledPlugins": { "noggin@noggin": true } }
+```
+
+Try it without installing: `claude --plugin-dir ~/Documents/Github/noggin`.
+
+## Use
+
+In the project, write `- [ ] ...` lines in `tasks.md` (coding or analysis) or `research.md` (topics to research). Then either run `/noggin:dispatch`, or start the watcher:
 
 ```bash
-git clone <repo> ~/Documents/Github/noggin && ~/Documents/Github/noggin/install.sh
+~/Documents/Github/noggin/watch.sh --permission-mode acceptEdits
 ```
 
-Re-run `install.sh` after adding a new agent or skill.
+Research topics can set how many hypotheses to test, one per round: `- [ ] topic (hypotheses: 3)`, default 1. Each dispatch runs one round per topic, and the count advances (`1/3`, `2/3`, ...).
+
+Items become `[x]` when done or `[?]` when an agent needs you. Answer, then set the item back to `[ ]` to retry.
+
+Knowledge: [graphify](https://github.com/Graphify-Labs/graphify) (`uv tool install "graphifyy[pdf]"`, then `/graphify .` in the project). Each session starts with `graphify-out/GRAPH_REPORT.md` in context; agents query `graph.json` for details.
