@@ -20,16 +20,3 @@ description: Use NCBI or misc accessions for public datasets, or local knowledge
 ## Results
 1. Summarize the results of the analysis, including any statistical tests performed, effect sizes, and confidence intervals. Include visualizations if applicable.
 2. Compare the results against the hypothesis and determine if the hypothesis is supported or refuted. Document any unexpected findings or anomalies.
-
-## Record
-1. Append a detailed entry to `research.log` with the following structure:
-```
-## <YYYY-MM-DD HH:MM> <topic> (round k/N)
-- hypothesis: <written before looking at results>
-- method: <data, tests, every test run, including the ones that found nothing>
-- result: <effect size, n, uncertainty; null results count>
-- evidence: <file paths, DOIs>
-- next: <follow-up or open question>
-```
-
-

@@ -21,8 +21,9 @@ Each brief states the item verbatim, its inputs, what done looks like, and what 
 
 ## 3. Verify
 A sub-agent saying it is done is a claim, not proof. Before accepting a result:
-- Code: `Skill(verify)` must pass.
-- Research: the reported numbers must trace to a file or a DOI you can open.
+- If engineer was dispatched: `Skill(verify)` must pass.
+- If scientist was dispatched: the reported numbers must trace to a file or a DOI you can open.
+- Both must provide records following the template below.
 
 ## 4. Record
 Append one entry per item, then update the item's checkbox in place:
