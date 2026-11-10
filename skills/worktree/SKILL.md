@@ -24,6 +24,6 @@ Never push, merge, rebase or touch the project root's checkout.
 ## Finish (dispatch)
 1. Run `Skill(verify)` yourself with the worktree as the working directory.
 2. Pass: `git worktree remove <path>`, keep the branch, and log `where: noggin/<hash>`.
-3. Fail: keep the worktree and the branch so Jordan can inspect them, and log both.
+3. Fail: keep the worktree and the branch so the user can inspect them, and log both.
 
-Jordan merges branches. Dispatch never merges or pushes.
+The user merges branches. Dispatch never merges or pushes.
