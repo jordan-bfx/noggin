@@ -5,7 +5,7 @@ Deterministic. Minimalism. Putting computation in biology.
 When asked to dispatch sub-agents, use `Skill(dispatch)` to perform tasks user adds in `tasks.md` and `research.md`. Post questions/checkpoints in the CLI for the user to answer.
 
 ## Knowledge
-Load knowledge graph from `graphify-out/`.
+Query the knowledge graph in `graphify-out/` with `graphify query`; never read `graph.json` whole.
 
 
 

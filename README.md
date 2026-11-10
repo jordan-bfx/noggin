@@ -6,6 +6,9 @@ A Claude Code plugin for deterministic engineering and science. Turn it on in an
 CLAUDE.md                 house rules, injected at session start with the project's graphify report (hooks/)
 skills/dispatch           tasks.md + research.md -> engineers/scientists -> tasks.log + research.log
 skills/verify             nf-test snapshots, built from tests/data/
+skills/worktree           one worktree + branch per writing agent; Jordan merges
+skills/check              /noggin:check: download, run-time and spend limits in noggin.conf
+skills/log                /noggin:log: every log entry with its ID; /noggin:log <id> for details
 agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 ```
@@ -29,7 +32,7 @@ Try it without installing: `claude --plugin-dir ~/Documents/Github/noggin`.
 In the project, write `- [ ] ...` lines in `tasks.md` (coding or analysis) or `research.md` (topics to research). Then either run `/noggin:dispatch`, or start the watcher:
 
 ```bash
-~/Documents/Github/noggin/watch.sh --permission-mode acceptEdits
+~/Documents/Github/noggin/watch.sh
 ```
 
 Research topics can set how many hypotheses to test, one per round: `- [ ] topic (hypotheses: 3)`, default 1. Each dispatch runs one round per topic, and the count advances (`1/3`, `2/3`, ...).
