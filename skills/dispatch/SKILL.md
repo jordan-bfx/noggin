@@ -12,7 +12,7 @@ One pass, then stop.
 - `tasks.log` and `research.log`, so you don't repeat work.
 - If `graphify-out/` exists, give each agent a scoped `graphify query "<question>"` result, not the whole graph.
 - If `research.md` has open items, make sure `.gitignore` lists `research/data/` and `research/*/*/tmp/`; add the lines if missing. Downloads and intermediates never go in git.
-- Limits from `Skill(check)` (`noggin.conf`, or its defaults). Put them in every scientist's brief.
+- Limits from `Skill(check)` (`noggin.conf`, or its defaults). Put them in every scientist's brief, with the noggin scripts path from your session context (for `fetch.sh`).
 
 ## 2. Dispatch
 Spawn sub-agents for the open items, using the Agent tool, at most 10 items per pass, in file order. Leave the rest `- [ ]` for the next pass.

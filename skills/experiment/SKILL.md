@@ -1,6 +1,6 @@
 ---
 name: experiment
-description: Use NCBI or misc accessions for public datasets, or local knowledge in `graphify-out/`, to bioinformatically analyze a dataset.
+description: Test one hypothesis on public omics data (genomics, epigenomics, bulk and single-cell transcriptomics, proteomics, or any other kind), or on local knowledge in `graphify-out/`, with a pre-registered plan.
 ---
 
 # Experiment
@@ -11,12 +11,12 @@ Each round is two agents; your brief says which phase you are.
 
 ## Hypothesis
 1. Determine what hypothesis the sub-agent is testing.
-2. Determine what data is needed to test it, and if it is available in the accessions below. If there is no data available, report back to dispatcher.
+2. Determine what data is needed to test it. Look first in `research/datasets.md`, the user's preferred sources across single-cell, bulk transcriptomics, genomics, epigenomics and proteomics; if you use anything else, the plan says why. Only sources listed there can be downloaded. Controlled-access data (dbGaP, EGA, GDC controlled) needs the user's credentials: report it as a question. If no suitable data exists, report back to dispatch.
 
 ## Method
 1. Before downloading or analyzing anything, write the plan to `research/<topic>/<hash>-<k>/analysis_plan.md` (the round hash is in your brief). It holds:
    - the hypothesis;
-   - the data: accessions and total size. If the full set is over `max_download_gb`, downsample here, never in the run phase: pick fewer runs, or the first N reads per run (`fastq-dump -X N`; size ≈ `fastq_bytes` × N / `read_count` from the ENA filereport). State the subset, its size, and what it costs in n and power;
+   - the data: accessions, file URLs and total size. If the full set is over `max_download_gb`, choose a subset here, never in the run phase (fewer samples, runs, files, cells or records; a partial read count with `fastq-dump -X N`). State the subset, its size, and what it costs in n and power;
    - tools, parameters, preprocessing and expected outputs;
    - the statistical test and the decision rule: supported if p < 0.05, or q < 0.05 (Benjamini-Hochberg FDR) when there is more than one test. No effect-size or fold-change threshold.
    Once dispatch registers its sha256, the plan is frozen. A deviation in the run phase gets its own note in the results, with the reason.
@@ -28,8 +28,19 @@ Each round is two agents; your brief says which phase you are.
 
 ## Analysis
 1. Unless the item says `(approved)`, check the limits in your brief first, as `Skill(check)` describes: the download size of the data the plan names (its subset, if it downsamples) and the plan's run-time estimate. Over a limit even with the subset, or size unknown: report the estimate and stop.
-2. Download the datasets from NCBI or other specified accessions to `research/data/`, shared by every topic. If the data is already present, verify its integrity.
-3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. In `research/<topic>/<hash>-<k>/`:
+2. Download exactly the files the plan names to `research/data/<repository>/<accession>/`, shared by every topic, with `<noggin scripts>/fetch.sh <url> <dest>`. It downloads only from sources listed in `research/datasets.md` and only into `research/data/`; a source it refuses is a question for the user, not a reason to find another way. Whatever the omics, it is the same command; what differs is the file:
+   - genomics and epigenomics: BAM/CRAM, VCF, BED, bigWig, peak calls (ENCODE, GDC open access, GEO supplementary files);
+   - bulk transcriptomics: count matrices (GEO supplementary files), or raw reads;
+   - single-cell: `.h5ad`, `.rds`, or matrix/barcodes/features files (CELLxGENE, GEO, 10x);
+   - proteomics: RAW or mzML spectra, identification results (mzIdentML, mzTab), protein FASTA (PRIDE, MassIVE, UniProt);
+   - raw reads deposited in SRA: their ENA FASTQ URLs (`fastq_ftp` from the ENA filereport via `fetch.sh --print`, prefixed with `https://`). Only when a run isn't on ENA, or the plan subsets reads (`fastq-dump -X N`), use the SRA Toolkit (`prefetch`, `fasterq-dump`) with output under `research/data/`; the plan says which runs and why.
+   Verify every file against the checksum its repository publishes (ENA `fastq_md5`, ENCODE and GDC `md5sum`, PRIDE checksum files), when there is one. If the data is already present, verify it the same way.
+3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. Containers run offline, so step 2 must have downloaded everything first:
+   - `docker run --network none --user "$(id -u):$(id -g)" -v "$PWD/research/data:/data:ro" -v "$PWD/research/<topic>/<hash>-<k>:/work" -w /work <image@digest> ...`: no network, data read-only, writes only to the round folder.
+   - With Nextflow, pass `-with-docker` and `-c` a config holding `docker.runOptions = '--network none'`.
+   A step that needs the network inside a container is a question for the user.
+
+   In `research/<topic>/<hash>-<k>/`:
    - `results/`: only the small final outputs the hypothesis test needs (tables, figures, statistics). It is tracked.
    - `tmp/`: everything else (intermediates, large files, Nextflow `-work-dir research/<topic>/<hash>-<k>/tmp/work`). It is ignored.
 
