@@ -27,7 +27,7 @@ Each round is two agents; your brief says which phase you are.
 
 ## Analysis
 1. Unless the item says `(approved)`, check the limits in your brief first, as `Skill(check)` describes: total download size and the plan's run-time estimate. Over a limit, or size unknown: don't download; report the estimate and stop.
-2. Download the datasets from NCBI or other specified accessions to `research/data/`, shared by every topic. If the data is already present, verify its integrity.
+2. Download the datasets from NCBI or other specified accessions to `research/data/`, shared by every topic. If necessary to avoid the `max_download_gb`, downsample. If the data is already present, verify its integrity.
 3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. In `research/<topic>/<hash>-<k>/`:
    - `results/`: only the small final outputs the hypothesis test needs (tables, figures, statistics). It is tracked.
    - `tmp/`: everything else (intermediates, large files, Nextflow `-work-dir research/<topic>/<hash>-<k>/tmp/work`). It is ignored.
