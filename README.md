@@ -15,6 +15,7 @@ agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]; the user manages research/data/.
 scripts/init.sh           run by /noggin:init; creates only what is missing
+scripts/fetch.sh          omics downloads: known repositories only, into research/data/ only
 ```
 
 ## Install
