@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # SessionStart: noggin's house rules, plus the project's graphify summary (the full graph stays queryable, not loaded).
 cat "$CLAUDE_PLUGIN_ROOT/CLAUDE.md"
+printf '\nnoggin scripts: %s/scripts\n' "$CLAUDE_PLUGIN_ROOT"
 report="${CLAUDE_PROJECT_DIR:-.}/graphify-out/GRAPH_REPORT.md"
 if [ -f "$report" ]; then
   printf '\n## Knowledge graph (graphify-out/GRAPH_REPORT.md)\n'

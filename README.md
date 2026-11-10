@@ -12,6 +12,7 @@ skills/log                /noggin:log: every log entry with its hash; /noggin:lo
 skills/peer-review        /noggin:peer-review <hash>[-<k>]: three independent reviewers, verdict in the log
 agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
+scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]
 ```
 
 ## Install
