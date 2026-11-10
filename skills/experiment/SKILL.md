@@ -5,18 +5,34 @@ description: Use NCBI or misc accessions for public datasets, or local knowledge
 
 # Experiment
 
+Each round is two agents; your brief says which phase you are.
+- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis.
+- **Run phase:** your brief gives the plan's path and sha256. First check `shasum -a 256 <plan>` matches; if not, stop and report it. Then Analysis steps 2-3 and Results, following the plan exactly. Never edit the plan.
+
 ## Hypothesis
 1. Determine what hypothesis the sub-agent is testing.
-2. Determine what data is needed to test it, and if it is available in the accessions below. If not, rely on primary literature found in the `graphify-out/` graph to support the hypothesis.
+2. Determine what data is needed to test it, and if it is available in the accessions below. If there is no data available, report back to dispatcher.
 
 ## Method
-1. Detail out the bioinformatic analysis plan, including tools, parameters, and expected outputs. Include any preprocessing steps needed for the data.
-2. Generate a Docker image with all dependencies to accomplish the analysis. Store the Dockerfile in `dockerfiles/` for reproducibility.
+1. Before downloading or analyzing anything, write the plan to `research/<topic>/<hash>-<k>/analysis_plan.md` (the round hash is in your brief). It holds:
+   - the hypothesis;
+   - tools, parameters, preprocessing and expected outputs;
+   - the statistical test and the decision rule: supported if p < 0.05, or q < 0.05 (Benjamini-Hochberg FDR) when there is more than one test. No effect-size or fold-change threshold.
+   Once dispatch registers its sha256, the plan is frozen. A deviation in the run phase gets its own note in the results, with the reason.
+2. Pick a container, in this order:
+   - Reuse one listed in `BioContainers/containers.md`.
+   - Else a BioContainers image from quay.io, pinned by digest: `docker pull <image>`, then `docker inspect --format '{{index .RepoDigests 0}}' <image>` gives `quay.io/biocontainers/<tool>@sha256:<hash>`. Report it with a one-line purpose; dispatch adds it to the table.
+   - Else write a Dockerfile with pinned versions to `dockerfiles/<name>.Dockerfile` (it exists nowhere else, so it must be kept).
+   Name the container by its digest or Dockerfile path in the plan and in the log's `method` line.
 
 ## Analysis
-1. Download the datasets from NCBI or other specified accessions to the project root. If the data is already present, verify its integrity.
-2. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. Keep only the necessary outputs for the hypothesis test, and store them in a structured manner.
+1. Unless the item says `(approved)`, check the limits in your brief first, as `Skill(check)` describes: total download size and the plan's run-time estimate. Over a limit, or size unknown: don't download; report the estimate and stop.
+2. Download the datasets from NCBI or other specified accessions to `research/data/`, shared by every topic. If the data is already present, verify its integrity.
+3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. In `research/<topic>/<hash>-<k>/`:
+   - `results/`: only the small final outputs the hypothesis test needs (tables, figures, statistics). It is tracked.
+   - `tmp/`: everything else (intermediates, large files, Nextflow `-work-dir research/<topic>/<hash>-<k>/tmp/work`). It is ignored.
 
 ## Results
 1. Summarize the results of the analysis, including any statistical tests performed, effect sizes, and confidence intervals. Include visualizations if applicable.
-2. Compare the results against the hypothesis and determine if the hypothesis is supported or refuted. Document any unexpected findings or anomalies.
+2. Apply the plan's decision rule: `supported` or `not supported`, nothing in between. Report effect sizes, but they don't decide. Document any unexpected findings or anomalies.
+3. Copy every command used, in run order and including failed attempts and fixes, to `research/<topic>/<hash>-<k>/command.sh`.
