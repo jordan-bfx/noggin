@@ -10,7 +10,7 @@ description: Use NCBI or misc accessions for public datasets, or local knowledge
 2. Determine what data is needed to test it, and if it is available in the accessions below. If there is no data available, report back to dispatcher.
 
 ## Method
-1. Before downloading or analyzing anything, write the plan to `research/<topic>/<id>-<k>/analysis_plan.md` (the round ID is in your brief). It holds:
+1. Before downloading or analyzing anything, write the plan to `research/<topic>/<hash>-<k>/analysis_plan.md` (the round hash is in your brief). It holds:
    - the hypothesis;
    - tools, parameters, preprocessing and expected outputs;
    - the statistical test and the decision rule: supported if p < 0.05, or q < 0.05 (Benjamini-Hochberg FDR) when there is more than one test. No effect-size or fold-change threshold.

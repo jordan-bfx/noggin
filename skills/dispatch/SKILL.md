@@ -19,7 +19,7 @@ Spawn one sub-agent per open item, using the Agent tool, at most 10 per pass, in
 - `tasks.md` item: an **engineer** for code or pipelines, a **scientist** for analysis.
 - `research.md` item: a **scientist** for one round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Give the scientist the topic's earlier `research.log` entries, so each round builds on the last and doesn't repeat it.
 
-Every item has an ID: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` without its trailing `(...)` tags. It stays the same across rounds and checkbox changes. A research round is `<id>-<k>`, e.g. `3f9a1c2-2`. Put the ID in the brief.
+Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` without its trailing `(...)` tags. It stays the same across rounds and checkbox changes. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
 
 Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. If the item has `Q:`/`A:` lines under it, include them: they are the user's answers from an earlier pass.
 
@@ -27,7 +27,7 @@ Engineer briefs also say: if ponytail is loaded, work at its ultra level. Before
 
 Agents run in parallel:
 - Every engineer, and any agent that edits tracked files, gets its own worktree and branch via `Skill(worktree)`.
-- Scientists download data for bioinformatic analysis to `data/` and follow analysis plans published in `research/<topic>/<id>-<k>/analysis_plan.md`.
+- Scientists download data for bioinformatic analysis to `data/` and follow analysis plans published in `research/<topic>/<hash>-<k>/analysis_plan.md`.
 
 IMPORTANT: If a scientist reports no testable data, the round still counts: log it with `status: untestable`, advance the count, and the next pass runs the next round.
 
@@ -42,7 +42,7 @@ Append one entry per item, then update the item's checkbox in place:
 
 `tasks.log`
 ```
-## <YYYY-MM-DD HH:MM> [<id>] <item>
+## <YYYY-MM-DD HH:MM> [<hash>] <item>
 - status: done | blocked
 - proof: <check run and its result>
 - where: <files or branch>
@@ -50,13 +50,13 @@ Append one entry per item, then update the item's checkbox in place:
 
 `research.log`
 ```
-## <YYYY-MM-DD HH:MM> [<id>-<k>] <topic> (round k/N)
+## <YYYY-MM-DD HH:MM> [<hash>-<k>] <topic> (round k/N)
 - status: supported | not supported | untestable | blocked
 - hypothesis: <as pre-registered in the plan>
-- plan: research/<topic>/<id>-<k>/analysis_plan.md
+- plan: research/<topic>/<hash>-<k>/analysis_plan.md
 - method: <data, container (quay.io digest or dockerfiles/ path), every test run, including the ones that found nothing>
 - result: <test, p or q value, effect size, n; null results count>
-- evidence: <file paths, DOIs>
+- evidence: <file paths, DOIs, or accession number>
 - next: <follow-up or open question>
 ```
 

@@ -8,7 +8,8 @@ skills/dispatch           tasks.md + research.md -> engineers/scientists -> task
 skills/verify             nf-test snapshots, built from tests/data/
 skills/worktree           one worktree + branch per writing agent; Jordan merges
 skills/check              /noggin:check: download, run-time and spend limits in noggin.conf
-skills/log                /noggin:log: every log entry with its ID; /noggin:log <id> for details
+skills/log                /noggin:log: every log entry with its hash; /noggin:log <hash> for details
+skills/peer-review        /noggin:peer-review <hash>[-<k>]: three independent reviewers, verdict in the log
 agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 ```
