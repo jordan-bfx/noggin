@@ -29,7 +29,6 @@ Checked 2026-11-10: every prefix below served a real file or API response, excep
 |---|---|---|---|---|
 | ENCODE (incl. Roadmap) | NHGRI | `https://www.encodeproject.org/` | BAM, bigWig, BED, peaks | `files/<ENCFF>/@@download/...` redirects to storage; `md5sum` in file metadata |
 | ChIP-Atlas | Kyushu Univ. / DBCLS | `https://chip-atlas.dbcls.jp/data/` | BED, bigWig | reprocessed public ChIP-, ATAC-, bisulfite-seq |
-| 4D Nucleome | NIH Common Fund | `https://data.4dnucleome.org/` | .hic, .mcool, pairs | *unverified* |
 | gnomAD | Broad | `https://storage.googleapis.com/gcp-public-data--gnomad/` | VCF, Hail tables | population variant frequencies |
 | 1000 Genomes (IGSR) | EMBL-EBI | `https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/` | VCF, CRAM | |
 | GDC (TCGA and others), open access | NCI | `https://api.gdc.cancer.gov/` | BAM, MAF, counts | `data/<uuid>` downloads; controlled-access files need the user |
@@ -38,8 +37,6 @@ Checked 2026-11-10: every prefix below served a real file or API response, excep
 | dataset | institute | download | format | notes |
 |---|---|---|---|---|
 | PRIDE | EMBL-EBI | `https://ftp.pride.ebi.ac.uk/` `https://www.ebi.ac.uk/pride/ws/archive/` | RAW, mzML, mzIdentML, mzTab | |
-| MassIVE | UCSD | `ftp://massive-ftp.ucsd.edu/` | RAW, mzML | *unverified* |
-| CPTAC (Proteomic Data Commons) | NCI | `https://pdc.cancer.gov/` | proteogenomics tables | *unverified*; files come from signed links on another host |
 | Human Protein Atlas | KTH / SciLifeLab | `https://www.proteinatlas.org/download/` | tsv, json, xml | |
 | ProteomicsDB | TU Munich | `https://www.proteomicsdb.org/proteomicsdb/logic/api/` | API (json) | |
 | UniProt | UniProt Consortium | `https://rest.uniprot.org/` `https://ftp.uniprot.org/pub/databases/uniprot/` | FASTA, tsv | |
@@ -49,13 +46,9 @@ Checked 2026-11-10: every prefix below served a real file or API response, excep
 |---|---|---|---|---|
 | NCBI (GEO, SRA metadata, RefSeq, dbSNP, ClinVar) | NIH | `https://ftp.ncbi.nlm.nih.gov/` `https://www.ncbi.nlm.nih.gov/geo/download/` `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/` | any | |
 | ENA (SRA reads as FASTQ) | EMBL-EBI | `https://ftp.sra.ebi.ac.uk/` `https://www.ebi.ac.uk/ena/portal/api/` | fastq.gz | filereport gives `fastq_ftp`, `fastq_bytes`, `fastq_md5` |
-| DepMap | Broad | `https://ndownloader.figshare.com/files/` `https://api.figshare.com/v2/articles/` | csv | public releases on figshare (e.g. 24Q2 = article 25880521); this allows any figshare file |
 | LINCS / Connectivity Map | Broad | (via GEO) | gctx | L1000: GSE92742, GSE70138 |
 | Ensembl | EMBL-EBI | `https://ftp.ensembl.org/pub/` | FASTA, GTF | |
 | UCSC Genome Browser | UC Santa Cruz | `https://hgdownload.soe.ucsc.edu/` | FASTA, bigBed, chain | |
-
-## Controlled access (ask the user; never download)
-UK Biobank, All of Us, dbGaP, EGA, GDC controlled tier.
 
 ## Local data
 | dataset | path | omics / format | source |
