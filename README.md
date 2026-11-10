@@ -4,7 +4,7 @@ A Claude Code plugin for deterministic engineering and science. Turn it on in an
 
 ```
 CLAUDE.md                 house rules, injected at session start with the project's graphify report (hooks/)
-skills/init               /noggin:init: creates tasks.md, research.md, their logs, research/data/, noggin.conf
+skills/init               /noggin:init: creates tasks.md, research.md, their logs, research/data/, research/datasets.md, noggin.conf
 skills/dispatch           tasks.md + research.md -> engineers/scientists -> tasks.log + research.log
 skills/verify             nf-test snapshots, built from tests/data/
 skills/worktree           one worktree + branch per writing agent; the user merges
@@ -15,7 +15,8 @@ agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]; the user manages research/data/.
 scripts/init.sh           run by /noggin:init; creates only what is missing
-scripts/fetch.sh          omics downloads: known repositories only, into research/data/ only
+scripts/fetch.sh          omics downloads: prefixes in research/datasets.md only, into research/data/ only
+templates/datasets.md     curated sources (Arc, CELLxGENE, ENCODE, NCBI, PRIDE, ...); /noggin:init copies it to research/
 ```
 
 ## Install

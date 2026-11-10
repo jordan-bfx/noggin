@@ -1,43 +1,48 @@
 #!/usr/bin/env bash
-# Downloads public omics data for noggin scientists: only from known repositories, only into research/data/.
-#   fetch.sh <url> <research/data/...>   download; skips a file that already exists
-#   fetch.sh --size <url>                print the file's size in bytes, or "unknown"
-# More hosts per project: fetch_hosts=host1,host2 in noggin.conf (see Skill(check)).
+# Downloads public data for noggin scientists: only from the sources listed in research/datasets.md, only into research/data/.
+#   fetch.sh <url> <research/data/...>   download a file; skips one that already exists
+#   fetch.sh --size <url>                print its size in bytes, or "unknown"
+#   fetch.sh --print <url>               print a small response (API metadata, listings), at most 10 MB
+# Run from the project root. A URL is allowed when it starts with a `prefix/` in the download column of research/datasets.md.
 set -euo pipefail
 
-hosts=(
-  # sequencing: genomics, epigenomics, bulk and single-cell transcriptomics
-  ftp.ncbi.nlm.nih.gov www.ncbi.nlm.nih.gov ftp.sra.ebi.ac.uk ftp.ebi.ac.uk www.ebi.ac.uk
-  www.encodeproject.org datasets.cellxgene.cziscience.com cf.10xgenomics.com api.gdc.cancer.gov
-  # proteomics
-  ftp.pride.ebi.ac.uk massive-ftp.ucsd.edu massive.ucsd.edu rest.uniprot.org ftp.uniprot.org
-  # references
-  ftp.ensembl.org hgdownload.soe.ucsc.edu
-)
-extra=$(sed -n 's/^fetch_hosts=//p' noggin.conf 2>/dev/null | tail -1 || true)
-[ -n "$extra" ] && IFS=, read -ra more <<< "$extra" && hosts+=("${more[@]}")
-
-usage() { echo "usage: fetch.sh <url> <research/data/...> | fetch.sh --size <url>" >&2; exit 2; }
+list=research/datasets.md
+usage() { echo "usage: fetch.sh <url> <research/data/...> | --size <url> | --print <url>" >&2; exit 2; }
 refuse() { echo "fetch: refused: $1" >&2; exit 1; }
-host_ok() {  # https or ftp, no user@ part, host on the list
-  local h a
-  h=$(printf '%s' "$1" | sed -nE 's#^(https|ftp)://([^/:@?]+)(:[0-9]+)?(/[^@]*)?$#\2#p')
-  [ -n "$h" ] || return 1
-  for a in "${hosts[@]}"; do [ "$h" = "$a" ] && return 0; done
+
+[ -f "$list" ] || refuse "no $list; run /noggin:init"
+prefixes=$(grep '^|' "$list" | grep -oE '`(https|ftp)://[^` ]+/`' | tr -d '`' || true)
+
+url_ok() {
+  local p
+  # No dot segments, encoded or not: curl would resolve them and step outside the prefix.
+  case "$1" in *"/../"*|*"/./"*|*"%2e"*|*"%2E"*) return 1 ;; esac
+  while read -r p; do
+    [ -n "$p" ] && [ "${1#"$p"}" != "$1" ] && return 0
+  done <<< "$prefixes"
   return 1
 }
 
-if [ "${1:-}" = --size ]; then
-  [ $# -eq 2 ] || usage
-  host_ok "$2" || refuse "host not on the list: $2"
-  n=$(curl -sIL --max-time 60 "$2" | tr -d '\r' | awk 'tolower($1) == "content-length:" { n = $2 } END { print n }')
-  echo "${n:-unknown}"
-  exit 0
-fi
+case "${1:-}" in
+  --size)
+    [ $# -eq 2 ] || usage
+    url_ok "$2" || refuse "not under a prefix in $list: $2"
+    # Ask for one byte: the total is in Content-Range, and servers that refuse HEAD still answer.
+    h=$(curl -sL --max-time 60 --max-filesize 1048576 -r 0-0 -o /dev/null -D - "$2" 2>/dev/null | tr -d '\r' || true)
+    n=$(awk 'tolower($1) == "content-range:" { split($3, a, "/"); n = a[2] } END { print n }' <<< "$h")
+    [ -n "$n" ] && [ "$n" != "*" ] || n=$(awk 'tolower($1) == "content-length:" { n = $2 } END { print n }' <<< "$h")
+    echo "${n:-unknown}"
+    exit 0 ;;
+  --print)
+    [ $# -eq 2 ] || usage
+    url_ok "$2" || refuse "not under a prefix in $list: $2"
+    curl -fsL --max-time 120 --max-filesize 10485760 "$2"
+    exit 0 ;;
+esac
 
 [ $# -eq 2 ] || usage
 url=$1 dest=$2
-host_ok "$url" || refuse "host not on the list: $url"
+url_ok "$url" || refuse "not under a prefix in $list: $url"
 case "$dest" in research/data/?*) ;; *) refuse "destination must be under research/data/: $dest" ;; esac
 case "/$dest/" in */../*) refuse "no .. in the destination: $dest" ;; esac
 mkdir -p "$(dirname "$dest")"

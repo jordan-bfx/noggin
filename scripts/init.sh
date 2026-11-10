@@ -13,6 +13,8 @@ file tasks.log    ''
 file research.log ''
 file noggin.conf  'max_download_gb=100\nmax_run_hours=24\nmax_budget_usd=20\n'  # defaults in skills/check
 if [ -d research/data ]; then say exists research/data/; else mkdir -p research/data; say created research/data/; fi
+# The plugin's curated sources; fetch.sh downloads only from the prefixes listed here. Edit it to add or remove sources.
+if [ -e research/datasets.md ]; then say exists research/datasets.md; else cp "$(dirname "$0")/../templates/datasets.md" research/datasets.md; say created research/datasets.md; fi
 
 [ -e .gitignore ] || { : > .gitignore; say created .gitignore; }
 # Without a final newline, an appended rule would merge into the last line and break both.

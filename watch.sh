@@ -9,13 +9,14 @@ allow=(Edit Write
   "Bash(nf-test *)" "Bash(nextflow *)" "Bash(graphify *)"
   "Bash(docker pull *)" "Bash(docker run *)"
   "Bash(printf *)" "Bash(shasum *)" "Bash(md5 *)" "Bash(md5sum *)" "Bash(*/scripts/clean-tmp.sh *)"
-  "Bash(*/scripts/fetch.sh *)"  # any omics download: listed hosts only, into research/data/ only
+  "Bash(*/scripts/fetch.sh *)"  # any omics download: prefixes in research/datasets.md only, into research/data/ only
   "Bash(prefetch *)" "Bash(fasterq-dump *)" "Bash(fastq-dump *)" "Bash(datasets *)"
-  "Bash(curl -s https://www.ebi.ac.uk/ena/portal/api/filereport*)"
   "Bash(git status *)" "Bash(git diff *)" "Bash(git log *)" "Bash(git rev-parse *)" "Bash(git branch *)"
   "Bash(git switch *)" "Bash(git add *)" "Bash(git commit *)" "Bash(git worktree *)")
 deny=("Bash(git push *)" "Bash(git merge *)" "Bash(git rebase *)" "Bash(git reset *)"
-  "Bash(rm -rf *)" "Bash(nf-test * --update-snapshot*)")
+  "Bash(rm -rf *)" "Bash(nf-test * --update-snapshot*)"
+  # Agents never change what they may download or how much.
+  "Edit(research/datasets.md)" "Write(research/datasets.md)" "Edit(noggin.conf)" "Write(noggin.conf)")
 
 max=${NOGGIN_MAX_RUNS:-20}  # dispatches per day; stops a runaway loop from spending all day
 sum() { cat tasks.md research.md 2>/dev/null | cksum; }
