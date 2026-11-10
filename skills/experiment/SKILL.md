@@ -6,7 +6,7 @@ description: Use NCBI or misc accessions for public datasets, or local knowledge
 # Experiment
 
 Each round is two agents; your brief says which phase you are.
-- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis.
+- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis. Dispatch then registers the plan's sha256, and a fresh scientist runs it.
 - **Run phase:** your brief gives the plan's path and sha256. First check `shasum -a 256 <plan>` matches; if not, stop and report it. Then Analysis steps 2-3 and Results, following the plan exactly. Never edit the plan.
 
 ## Hypothesis
@@ -16,6 +16,7 @@ Each round is two agents; your brief says which phase you are.
 ## Method
 1. Before downloading or analyzing anything, write the plan to `research/<topic>/<hash>-<k>/analysis_plan.md` (the round hash is in your brief). It holds:
    - the hypothesis;
+   - the data: accessions and total size. If the full set is over `max_download_gb`, downsample here, never in the run phase: pick fewer runs, or the first N reads per run (`fastq-dump -X N`; size ≈ `fastq_bytes` × N / `read_count` from the ENA filereport). State the subset, its size, and what it costs in n and power;
    - tools, parameters, preprocessing and expected outputs;
    - the statistical test and the decision rule: supported if p < 0.05, or q < 0.05 (Benjamini-Hochberg FDR) when there is more than one test. No effect-size or fold-change threshold.
    Once dispatch registers its sha256, the plan is frozen. A deviation in the run phase gets its own note in the results, with the reason.
@@ -26,7 +27,7 @@ Each round is two agents; your brief says which phase you are.
    Name the container by its digest or Dockerfile path in the plan and in the log's `method` line.
 
 ## Analysis
-1. Unless the item says `(approved)`, check the limits in your brief first, as `Skill(check)` describes: total download size and the plan's run-time estimate. Over a limit, or size unknown: don't download; report the estimate and stop.
+1. Unless the item says `(approved)`, check the limits in your brief first, as `Skill(check)` describes: the download size of the data the plan names (its subset, if it downsamples) and the plan's run-time estimate. Over a limit even with the subset, or size unknown: report the estimate and stop.
 2. Download the datasets from NCBI or other specified accessions to `research/data/`, shared by every topic. If the data is already present, verify its integrity.
 3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. In `research/<topic>/<hash>-<k>/`:
    - `results/`: only the small final outputs the hypothesis test needs (tables, figures, statistics). It is tracked.

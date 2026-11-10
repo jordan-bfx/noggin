@@ -4,15 +4,17 @@ A Claude Code plugin for deterministic engineering and science. Turn it on in an
 
 ```
 CLAUDE.md                 house rules, injected at session start with the project's graphify report (hooks/)
+skills/init               /noggin:init: creates tasks.md, research.md, their logs, research/data/, noggin.conf
 skills/dispatch           tasks.md + research.md -> engineers/scientists -> tasks.log + research.log
 skills/verify             nf-test snapshots, built from tests/data/
-skills/worktree           one worktree + branch per writing agent; Jordan merges
+skills/worktree           one worktree + branch per writing agent; the user merges
 skills/check              /noggin:check: download, run-time and spend limits in noggin.conf
 skills/log                /noggin:log: every log entry with its hash; /noggin:log <hash> for details
 skills/peer-review        /noggin:peer-review <hash>[-<k>]: three independent reviewers, verdict in the log
 agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
-scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]
+scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]; the user manages research/data/.
+scripts/init.sh           run by /noggin:init; creates only what is missing
 ```
 
 ## Install
@@ -41,7 +43,7 @@ Optional: [ponytail](https://github.com/DietrichGebert/ponytail). With it instal
 
 ## Use
 
-In the project, write `- [ ] ...` lines in `tasks.md` (coding or analysis) or `research.md` (topics to research). Then either run `/noggin:dispatch`, or start the watcher:
+In the project, run `/noggin:init` once, then write `- [ ] ...` lines in `tasks.md` (coding or analysis) or `research.md` (topics to research). Then either run `/noggin:dispatch`, or start the watcher:
 
 ```bash
 ~/Documents/Github/noggin/watch.sh
