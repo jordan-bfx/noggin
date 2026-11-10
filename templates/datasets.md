@@ -11,7 +11,7 @@ Checked 2026-11-10: every prefix below served a real file or API response, excep
 | dataset | institute | download | format | notes |
 |---|---|---|---|---|
 | Arc Virtual Cell Atlas (scBaseCount, Tahoe-100M) | Arc Institute | `https://storage.googleapis.com/arc-institute-virtual-cell-atlas/` `https://storage.googleapis.com/storage/v1/b/arc-institute-virtual-cell-atlas/` | h5ad, parquet | folders `scbasecount/<release>/`, `tahoe100M/`; ~41 TB total, pick samples or plates; record the release |
-| CELLxGENE | Chan Zuckerberg Initiative | `https://datasets.cellxgene.cziscience.com/` `https://api.cellxgene.cziscience.com/curation/v1/` `https://cellxgene-census-public-us-west-2.s3.us-west-2.amazonaws.com/` | h5ad per dataset; Census (TileDB-SOMA) | find datasets via the curation API; Census is queried, not downloaded whole |
+| CELLxGENE | Chan Zuckerberg Initiative | `https://datasets.cellxgene.cziscience.com/` `https://api.cellxgene.cziscience.com/curation/v1/` `https://cellxgene-census-public-us-west-2.s3.us-west-2.amazonaws.com/` | h5ad per dataset; Census (TileDB-SOMA) | find datasets via the curation API, then download each h5ad. Census is queried over the network, which offline containers can't do |
 | Human Cell Atlas | HCA consortium | `https://service.azul.data.humancellatlas.org/` | h5ad, loom, fastq | `index/files` to search; `repository/files/<uuid>` redirects to storage |
 | 10x Genomics public datasets | 10x Genomics | `https://cf.10xgenomics.com/samples/` | h5, mtx, fastq | reference datasets for each 10x assay |
 | Allen Brain Cell Atlas | Allen Institute | `https://allen-brain-cell-atlas.s3.us-west-2.amazonaws.com/` | h5ad, parquet | `releases/<date>/manifest.json` lists every file |

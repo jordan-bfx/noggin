@@ -35,7 +35,12 @@ Each round is two agents; your brief says which phase you are.
    - proteomics: RAW or mzML spectra, identification results (mzIdentML, mzTab), protein FASTA (PRIDE, MassIVE, UniProt);
    - raw reads deposited in SRA: their ENA FASTQ URLs (`fastq_ftp` from the ENA filereport via `fetch.sh --print`, prefixed with `https://`). Only when a run isn't on ENA, or the plan subsets reads (`fastq-dump -X N`), use the SRA Toolkit (`prefetch`, `fasterq-dump`) with output under `research/data/`; the plan says which runs and why.
    Verify every file against the checksum its repository publishes (ENA `fastq_md5`, ENCODE and GDC `md5sum`, PRIDE checksum files), when there is one. If the data is already present, verify it the same way.
-3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. In `research/<topic>/<hash>-<k>/`:
+3. Execute the analysis plan using the Docker image, ensuring that all steps are logged for reproducibility. Containers run offline, so step 2 must have downloaded everything first:
+   - `docker run --network none --user "$(id -u):$(id -g)" -v "$PWD/research/data:/data:ro" -v "$PWD/research/<topic>/<hash>-<k>:/work" -w /work <image@digest> ...`: no network, data read-only, writes only to the round folder.
+   - With Nextflow, pass `-with-docker` and `-c` a config holding `docker.runOptions = '--network none'`.
+   A step that needs the network inside a container is a question for the user.
+
+   In `research/<topic>/<hash>-<k>/`:
    - `results/`: only the small final outputs the hypothesis test needs (tables, figures, statistics). It is tracked.
    - `tmp/`: everything else (intermediates, large files, Nextflow `-work-dir research/<topic>/<hash>-<k>/tmp/work`). It is ignored.
 
