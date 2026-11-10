@@ -21,7 +21,9 @@ Spawn one sub-agent per open item, using the Agent tool, at most 10 per pass, in
 
 Every item has an ID: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` without its trailing `(...)` tags. It stays the same across rounds and checkbox changes. A research round is `<id>-<k>`, e.g. `3f9a1c2-2`. Put the ID in the brief.
 
-Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch.
+Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. If the item has `Q:`/`A:` lines under it, include them: they are the user's answers from an earlier pass.
+
+Engineer briefs also say: if ponytail is loaded, work at its ultra level. Before building, push back on any part of the item the need doesn't justify, and report the pushback as a question.
 
 Agents run in parallel:
 - Every engineer, and any agent that edits tracked files, gets its own worktree and branch via `Skill(worktree)`.
@@ -68,6 +70,11 @@ New containers a scientist reports go in `BioContainers/containers.md` (create i
 
 - Research round done with rounds left: the line stays `- [ ]` and its count records progress, `(hypotheses: 3)` → `(hypotheses: 1/3)` → `(hypotheses: 2/3)`.
 - Done (a task, or a topic's last round): `- [ ]` becomes `- [x]`, e.g. `- [x] topic (hypotheses: 3/3)`.
-- Blocked, failed, or over a `Skill(check)` limit: `- [ ]` becomes `- [?]`, with the question (or the size/time estimate) in the log entry. Ask it in the CLI too if a user is present. The user sets it back to `- [ ]` to retry.
+- Blocked, failed, over a `Skill(check)` limit, or an agent's question (ponytail pushback included): `- [ ]` becomes `- [?]`, and the question (or the size/time estimate) goes on an indented line under the item, and in the log entry as `- question:`. Ask it in the CLI too if a user is present.
+  ```
+  - [?] add fastp step to qc pipeline
+    - Q: Trim adapters only, or quality-trim too?
+  ```
+  The user writes `  - A: <answer>` under it and sets the item back to `- [ ]` to retry. The next log entry for that item records the answer as `- answer:`. Leave the `Q:`/`A:` lines in place; the user tidies them.
 
 Report to the user, leading with anything that is `[?]`.

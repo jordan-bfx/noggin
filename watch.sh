@@ -18,7 +18,7 @@ deny=("Bash(git push *)" "Bash(git merge *)" "Bash(git rebase *)" "Bash(git rese
 
 max=${NOGGIN_MAX_RUNS:-20}  # dispatches per day; stops a runaway loop from spending all day
 sum() { cat tasks.md research.md 2>/dev/null | cksum; }
-last="" day="" runs=0
+last="" day="" runs=0 lastq=0
 while true; do
   now=$(sum)
   if [ "$now" != "$last" ]; then
@@ -36,6 +36,14 @@ while true; do
       claude -p "/noggin:dispatch" --permission-mode acceptEdits --max-budget-usd "${budget:-20}" \
         --allowedTools "${allow[@]}" --disallowedTools "${deny[@]}" "$@" \
         || echo "noggin: dispatch failed" >&2
+      # Notify only when the number of [?] items goes up; the count only, never the question text.
+      q=$(cat tasks.md research.md 2>/dev/null | grep -Ec '^[[:space:]]*- \[\?\]')
+      if [ "$q" -gt "$lastq" ]; then
+        echo "noggin: $q question(s) waiting in tasks.md / research.md"
+        command -v osascript >/dev/null &&
+          osascript -e "display notification \"$q waiting in tasks.md / research.md\" with title \"noggin: questions\""
+      fi
+      lastq=$q
     fi
   fi
   sleep "${NOGGIN_POLL:-5}"
