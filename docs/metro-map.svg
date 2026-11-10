@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="450" viewBox="0 0 680 450" role="img">
+<title>noggin metro map</title>
+<desc>Research (scientist) and task (engineer) lines start at research.md and tasks.md, meet at dispatch, run their own stations, and meet again at record. A question loop runs from record back to dispatch through the user's answer. A review line runs from record to the log, peer review, and the user's merge.</desc>
+<style>
+  text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 12px; fill: #57606a; }
+  .th { font-size: 14px; font-weight: 600; fill: #24292f; }
+  .stop, .hub { fill: #ffffff; }
+  .hub { stroke: #57606a; }
+  @media (prefers-color-scheme: dark) {
+    text { fill: #9198a1; }
+    .th { fill: #e6edf3; }
+    .stop, .hub { fill: #0d1117; }
+    .hub { stroke: #9198a1; }
+  }
+</style>
+<path d="M560 106 L560 60 L110 60 L110 106" fill="none" stroke="#D85A30" stroke-width="6" stroke-linejoin="round"/>
+<path d="M560 264 L560 360 L190 360" fill="none" stroke="#888780" stroke-width="6" stroke-linejoin="round"/>
+<line x1="60" y1="120" x2="560" y2="120" stroke="#1D9E75" stroke-width="6"/>
+<line x1="60" y1="250" x2="560" y2="250" stroke="#7F77DD" stroke-width="6"/>
+<rect class="hub" x="96" y="106" width="28" height="158" rx="14" stroke-width="2.5"/>
+<rect class="hub" x="546" y="106" width="28" height="158" rx="14" stroke-width="2.5"/>
+<g class="stop" stroke-width="3">
+  <circle cx="60" cy="120" r="7" stroke="#1D9E75"/><circle cx="190" cy="120" r="7" stroke="#1D9E75"/><circle cx="260" cy="120" r="7" stroke="#1D9E75"/>
+  <circle cx="330" cy="120" r="7" stroke="#1D9E75"/><circle cx="400" cy="120" r="7" stroke="#1D9E75"/><circle cx="470" cy="120" r="7" stroke="#1D9E75"/>
+  <circle cx="60" cy="250" r="7" stroke="#7F77DD"/><circle cx="190" cy="250" r="7" stroke="#7F77DD"/><circle cx="280" cy="250" r="7" stroke="#7F77DD"/>
+  <circle cx="370" cy="250" r="7" stroke="#7F77DD"/><circle cx="460" cy="250" r="7" stroke="#7F77DD"/>
+  <circle cx="430" cy="60" r="7" stroke="#D85A30"/><circle cx="270" cy="60" r="7" stroke="#D85A30"/>
+  <circle cx="470" cy="360" r="7" stroke="#888780"/><circle cx="350" cy="360" r="7" stroke="#888780"/><circle cx="190" cy="360" r="7" stroke="#888780"/>
+</g>
+<g text-anchor="middle">
+  <text x="60" y="146">research.md</text><text x="190" y="146">Plan</text><text x="260" y="146">Register</text>
+  <text x="330" y="146">Download</text><text x="400" y="146">Run</text><text x="470" y="146">Results</text>
+  <text x="60" y="276">tasks.md</text><text x="190" y="276">Worktree</text><text x="280" y="276">Build</text>
+  <text x="370" y="276">Verify</text><text x="460" y="276">Commit</text>
+  <text x="430" y="40">[?] with Q:</text><text x="270" y="40">You write A:</text>
+  <text x="470" y="386">/noggin:log</text><text x="350" y="386">Peer review</text><text x="190" y="386">You merge</text>
+  <text class="th" x="110" y="300">Dispatch</text>
+</g>
+<text class="th" x="586" y="190">Record</text>
+<line x1="40" y1="425" x2="64" y2="425" stroke="#1D9E75" stroke-width="6"/><text x="72" y="429">Research (scientist)</text>
+<line x1="220" y1="425" x2="244" y2="425" stroke="#7F77DD" stroke-width="6"/><text x="252" y="429">Task (engineer)</text>
+<line x1="380" y1="425" x2="404" y2="425" stroke="#D85A30" stroke-width="6"/><text x="412" y="429">Question</text>
+<line x1="500" y1="425" x2="524" y2="425" stroke="#888780" stroke-width="6"/><text x="532" y="429">Review</text>
+</svg>

@@ -1,5 +1,7 @@
 # noggin
 
+<p align="center"><img src="docs/metro-map.svg" alt="noggin metro map: research and task lines meet at dispatch and record; questions loop back through your answer; review runs from the log to peer review and your merge" width="680"></p>
+
 A Claude Code plugin for deterministic engineering and science. Turn it on in any project.
 
 ```
