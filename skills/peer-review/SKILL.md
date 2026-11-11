@@ -24,7 +24,7 @@ Task (engineers):
 
 Research (scientists):
 1. Pre-registration: the plan's sha256 matches its `registered` entry; the validation data and negative control were named in it, before any results; the run and validation followed it, and every deviation is noted with a reason.
-2. Statistics: right test for the data, assumptions checked, FDR where needed, every test reported, including nulls. Hypotheses tested across rounds on the same data count as multiple tests. The negative control is a real null (could it have caught a leak?), and the validation data is truly independent of the discovery data (no shared samples, donors or study).
+2. Statistics: right test for the data, assumptions checked, FDR where needed, every test reported, including nulls. Hypotheses tested across rounds on the same data count as multiple tests. The negative control is a real null (could it have caught a leak?), and the validation data is truly independent of the discovery data (no shared samples, donors or study). For prediction items: the primary metric fits the target and class balance, the baseline is a fair one, nothing was tuned on held-out data, and preprocessing stayed inside the training folds.
 3. Reproducibility: recompute the key p/q values from the stored outputs, discovery and validation (write nothing to the repo); container digest and accessions match the method line; each verdict follows the decision rule, and `replicated` has the same direction of effect.
 
 Each finding: `major` or `minor`, a file:line or log line, and one sentence on why. No evidence, no finding.

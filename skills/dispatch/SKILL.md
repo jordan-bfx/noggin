@@ -74,6 +74,7 @@ Append one entry per item, then update the item's checkbox in place:
 - result: <test, p or q value, effect size and direction, n; null results count>
 - negative control: <what it was, its p or q value>
 - validation: <held-out accessions, or none and why>
+- metric: <prediction items only: primary metric, model vs baseline with 95% CIs, and why this metric if the scientist chose it>
 - evidence: <file paths, DOIs, or accession number>
 - next: <follow-up or open question>
 ```
@@ -84,7 +85,7 @@ Append one entry per item, then update the item's checkbox in place:
 - status: replicated | not replicated | blocked
 - plan: research/<topic>/<hash>-<k>/analysis_plan.md sha256:<64 hex>
 - data: <validation accessions>
-- result: <test, p or q value, effect size and direction, n>
+- result: <test, p or q value, effect size and direction, n; for prediction items, the saved model's primary metric vs the baseline>
 - negative control: <its p or q value>
 - evidence: research/<topic>/<hash>-<k>/validation/results/...
 ```

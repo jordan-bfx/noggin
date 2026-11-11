@@ -23,6 +23,30 @@ Each round is up to three agents; your brief says which phase you are.
    - the statistical test and the decision rule: supported if p < 0.05, or q < 0.05 (Benjamini-Hochberg FDR) when there is more than one test. No effect-size or fold-change threshold. State the direction of effect the hypothesis predicts;
    - a negative control that must come out null, run through the same pipeline and test: by default the same analysis with the group labels permuted; or a comparison where no effect is expected. If it is significant, the pipeline is broken, leaking or gaming the test, and the result is not trusted.
    Once dispatch registers its sha256, the plan is frozen. A deviation in the run phase gets its own note in the results, with the reason.
+
+   **Prediction items.** An item tagged `(metric: ...)` builds a predictive model. Its plan holds everything above, with these in place of the statistical test and decision rule:
+   - the target, the features, and the model family;
+   - the primary metric: the item's, or if the tag is empty (`(metric:)`), the one you choose from the table below, with one line on why it fits the target and the class balance. Secondary metrics are reported but never decide;
+   - a baseline: a published method, a simple model (e.g. linear or logistic regression on a few known markers), or the class prevalence;
+   - the decision rule: `supported` if the model beats the baseline on the primary metric, p < 0.05 by one paired test per phase, named in the plan. Run phase (cross-validated on the discovery data): a permutation test over the whole cross-validation procedure, since reused folds make other tests overconfident. Validate phase (the saved model scored once on the held-out data): DeLong's test for AUROC, otherwise a paired bootstrap. No metric threshold in either phase;
+   - leakage rules: tune only on discovery data, split by donor, patient or study (never by sample alone), and do every feature-selection and normalization step inside the training folds;
+   - the negative control: the same pipeline with permuted labels must score at chance. Significantly above chance means leakage.
+
+   The run phase saves the final model and its preprocessing under `results/model/`. The validate phase scores that saved model once on the validation data: never retrain or re-tune it there.
+
+   | Task | Primary metric | Choose it when |
+   |---|---|---|
+   | Regression | RMSE | errors should count in the target's units, large misses weigh more |
+   | Regression | MAE | outliers or heavy tails; every miss weighs the same |
+   | Binary classification | AUROC | ranking cases from controls, classes roughly balanced |
+   | Binary classification | AUPRC | positives are rare (under ~10%) |
+   | Binary, with a decision | F1 | a yes/no call is needed and positives matter most; fix the threshold on discovery data |
+   | Binary, with a decision | MCC | a yes/no call on imbalanced classes, both classes matter |
+   | Multiclass | Macro-F1 | every class matters equally, including small ones |
+   | Multiclass | Balanced accuracy | one number for overall correctness with unequal class sizes |
+   | Survival | C-index | time-to-event targets with censoring |
+
+   R² can always be reported for regression, but never decides.
 2. Pick a container, in this order:
    - Reuse one listed in `BioContainers/containers.md`.
    - Else a BioContainers image from quay.io, pinned by digest: `docker pull <image>`, then `docker inspect --format '{{index .RepoDigests 0}}' <image>` gives `quay.io/biocontainers/<tool>@sha256:<hash>`. Report it with a one-line purpose; dispatch adds it to the table.
@@ -50,5 +74,5 @@ Each round is up to three agents; your brief says which phase you are.
 ## Results
 1. Summarize the results of the analysis, including any statistical tests performed, effect sizes, and confidence intervals. Include visualizations if applicable.
 2. Run the negative control. If it is significant, stop: report `blocked` with "negative control failed", not a verdict.
-3. Apply the plan's decision rule: `supported` or `not supported`, nothing in between. Report effect sizes and their direction, but they don't decide. Document any unexpected findings or anomalies.
+3. Apply the plan's decision rule: `supported` or `not supported`, nothing in between. Report effect sizes and their direction, but they don't decide. For a prediction item, report the primary metric for the model and the baseline, each with a 95% confidence interval, and the secondary metrics. Document any unexpected findings or anomalies.
 4. Copy every command used, in run order and including failed attempts and fixes, to `research/<topic>/<hash>-<k>/command.sh`.
