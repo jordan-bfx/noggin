@@ -11,7 +11,7 @@ Review `$ARGUMENTS`. Read only: reviewers never edit, commit, download, or reope
 
 ## 1. Find the work
 - A hash in `tasks.log`: the branch `noggin/<hash>`. Review `git diff main...noggin/<hash>` and its log entries. No branch: stop and say so.
-- `<hash>-<k>` in `research.log`: that round; `<hash>` alone: every round. Per round: the log entry, `research/<topic>/<hash>-<k>/analysis_plan.md`, its outputs, and `shasum -a 256` of the plan against its `registered` entry in `research.log` (same hash, and registered before the result entry?).
+- `<hash>-<k>` in `research.log`: that round; `<hash>` alone: every round. Per round: the log entry, `research/<topic>/<hash>-<k>/analysis_plan.md`, its outputs (and `validation/` if it was validated), and `shasum -a 256` of the plan against its `registered` entry in `research.log` (same hash, and registered before the result entries?).
 - No log entry with that hash: stop and say so.
 
 ## 2. Review
@@ -23,9 +23,9 @@ Task (engineers):
 3. Minimalism: is every line needed? Use `ponytail:ponytail-review` if it is loaded.
 
 Research (scientists):
-1. Pre-registration: the plan's sha256 matches its `registered` entry, the run followed it, and every deviation is noted with a reason.
-2. Statistics: right test for the data, assumptions checked, FDR where needed, every test reported, including nulls. Hypotheses tested across rounds on the same data count as multiple tests.
-3. Reproducibility: recompute the key p/q values from the stored outputs (write nothing to the repo); container digest and accessions match the method line; the verdict follows the decision rule.
+1. Pre-registration: the plan's sha256 matches its `registered` entry; the validation data and negative control were named in it, before any results; the run and validation followed it, and every deviation is noted with a reason.
+2. Statistics: right test for the data, assumptions checked, FDR where needed, every test reported, including nulls. Hypotheses tested across rounds on the same data count as multiple tests. The negative control is a real null (could it have caught a leak?), and the validation data is truly independent of the discovery data (no shared samples, donors or study).
+3. Reproducibility: recompute the key p/q values from the stored outputs, discovery and validation (write nothing to the repo); container digest and accessions match the method line; each verdict follows the decision rule, and `replicated` has the same direction of effect.
 
 Each finding: `major` or `minor`, a file:line or log line, and one sentence on why. No evidence, no finding.
 

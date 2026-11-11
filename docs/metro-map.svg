@@ -20,16 +20,16 @@
 <rect class="hub" x="96" y="106" width="28" height="158" rx="14" stroke-width="2.5"/>
 <rect class="hub" x="546" y="106" width="28" height="158" rx="14" stroke-width="2.5"/>
 <g class="stop" stroke-width="3">
-  <circle cx="60" cy="120" r="7" stroke="#1D9E75"/><circle cx="190" cy="120" r="7" stroke="#1D9E75"/><circle cx="260" cy="120" r="7" stroke="#1D9E75"/>
-  <circle cx="330" cy="120" r="7" stroke="#1D9E75"/><circle cx="400" cy="120" r="7" stroke="#1D9E75"/><circle cx="470" cy="120" r="7" stroke="#1D9E75"/>
+  <circle cx="60" cy="120" r="7" stroke="#1D9E75"/><circle cx="170" cy="120" r="7" stroke="#1D9E75"/><circle cx="230" cy="120" r="7" stroke="#1D9E75"/>
+  <circle cx="295" cy="120" r="7" stroke="#1D9E75"/><circle cx="355" cy="120" r="7" stroke="#1D9E75"/><circle cx="415" cy="120" r="7" stroke="#1D9E75"/><circle cx="485" cy="120" r="7" stroke="#1D9E75"/>
   <circle cx="60" cy="250" r="7" stroke="#7F77DD"/><circle cx="190" cy="250" r="7" stroke="#7F77DD"/><circle cx="280" cy="250" r="7" stroke="#7F77DD"/>
   <circle cx="370" cy="250" r="7" stroke="#7F77DD"/><circle cx="460" cy="250" r="7" stroke="#7F77DD"/>
   <circle cx="430" cy="60" r="7" stroke="#D85A30"/><circle cx="270" cy="60" r="7" stroke="#D85A30"/>
   <circle cx="470" cy="360" r="7" stroke="#888780"/><circle cx="350" cy="360" r="7" stroke="#888780"/><circle cx="190" cy="360" r="7" stroke="#888780"/>
 </g>
 <g text-anchor="middle">
-  <text x="60" y="146">research.md</text><text x="190" y="146">Plan</text><text x="260" y="146">Register</text>
-  <text x="330" y="146">Download</text><text x="400" y="146">Run</text><text x="470" y="146">Results</text>
+  <text x="60" y="146">research.md</text><text x="170" y="146">Plan</text><text x="230" y="146">Register</text>
+  <text x="295" y="146">Download</text><text x="355" y="146">Run</text><text x="415" y="146">Results</text><text x="485" y="146">Validate</text>
   <text x="60" y="276">tasks.md</text><text x="190" y="276">Worktree</text><text x="280" y="276">Build</text>
   <text x="370" y="276">Verify</text><text x="460" y="276">Commit</text>
   <text x="430" y="40">[?] with Q:</text><text x="270" y="40">You write A:</text>
