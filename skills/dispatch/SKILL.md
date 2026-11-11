@@ -17,13 +17,14 @@ One pass, then stop.
 ## 2. Dispatch
 Spawn sub-agents for the open items, using the Agent tool, at most 10 items per pass, in file order. Leave the rest `- [ ]` for the next pass.
 - `tasks.md` item: an **engineer** for code or pipelines, a **scientist** for analysis.
-- `research.md` item: a **scientist** for one round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Give the scientist the topic's earlier `research.log` entries, so each round builds on the last and doesn't repeat it.
+- `research.md` item: a **scientist** for one round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Give the scientist the topic's earlier `research.log` entries, so each round builds on the last and doesn't repeat it. A prediction item tagged `(iterations: N)` runs iterations instead, one per pass, as rounds `<hash>-<k>` (`Skill(experiment)`, Iterated prediction items).
 
 A research round runs in up to three phases, each its own scientist (`Skill(experiment)`), all in the same pass:
 1. **Plan:** the scientist writes `analysis_plan.md` (with discovery data, held-out validation data and a negative control), checks the limits, and stops. Nothing is downloaded or analyzed.
 2. **Register:** you run `shasum -a 256 <plan>` and append a `registered` entry to `research.log` (template below) before spawning anything else for that round. Note which of the plan's validation paths already exist in `research/data/`.
 3. **Run:** a fresh scientist gets only the plan's path and its sha256, the limits and the round hash, and executes the plan on the discovery data. The validation data is held out from it.
 4. **Validate:** only if the run is `supported` and the plan names validation data. A third, fresh scientist gets the plan's path and sha256, the limits and the round hash, and nothing about the discovery results. It runs the same plan on the validation data: `replicated` or `not replicated`. With `validation: none`, the round ends `supported (unreplicated)`.
+   An iterated item has no validate phase per iteration. After its last iteration (N reached, two in a row without beating the best outer-fold score, or `converged`), a fresh scientist runs the final validate phase as `<hash>-final` in the same pass, on the chosen iteration's plan and saved model.
 
 If the plan phase ends untestable, blocked or over a limit, there is no run phase. A round resumes at the first phase without a log entry: after `registered`, at the run; after a `supported` run with validation data, at validation.
 
@@ -43,6 +44,7 @@ IMPORTANT: If a scientist reports no testable data, the round still counts: log 
 A sub-agent saying it is done is a claim, not proof. Before accepting a result:
 - If engineer was dispatched: `Skill(verify)` must pass in its worktree. Then finish the worktree as `Skill(worktree)` says.
 - If scientist was dispatched: the reported numbers must trace to a file or a DOI you can open, and `shasum -a 256` of the plan must still match its `registered` entry. A mismatch makes the round blocked, with the question "plan changed after registration".
+- Iterated items: at iteration 1's registration, record the sha256 of its fixed inputs (`discovery_ids.tsv`, `folds.tsv`, `permuted_labels.tsv`, and `heldout_ids.tsv` if any). Every later plan must name the same files; check their hashes at every registration, run and the final validate phase. A mismatch blocks the item with "fixed inputs changed".
 - After a run: the negative control must be reported and null, or the round is blocked with "negative control failed". Validation paths that didn't exist at registration but exist now mean the run touched held-out data: the round is blocked with "validation data opened during the run", and no validate phase follows.
 - Both must provide records following the template below.
 
@@ -62,6 +64,7 @@ Append one entry per item, then update the item's checkbox in place:
 ## <YYYY-MM-DD HH:MM> [<hash>-<k>] <topic> (round k/N)
 - status: registered
 - plan: research/<topic>/<hash>-<k>/analysis_plan.md sha256:<64 hex>
+- fixed: <iterated items, iteration 1 only: each fixed input's path sha256:<64 hex>>
 ```
 
 `research.log`, after the run phase (or a plan phase that ended the round):
@@ -74,7 +77,8 @@ Append one entry per item, then update the item's checkbox in place:
 - result: <test, p or q value, effect size and direction, n; null results count>
 - negative control: <what it was, its p or q value>
 - validation: <held-out accessions, or none and why>
-- metric: <prediction items only: primary metric, model vs baseline with 95% CIs, and why this metric if the scientist chose it>
+- metric: <prediction items only: primary metric, model vs baseline with 95% CIs, and why this metric if the scientist chose it; for iterations, the outer-fold score>
+- changed: <iterated items: what this iteration changed from the last>
 - evidence: <file paths, DOIs, or accession number>
 - next: <follow-up or open question>
 ```
@@ -90,6 +94,18 @@ Append one entry per item, then update the item's checkbox in place:
 - evidence: research/<topic>/<hash>-<k>/validation/results/...
 ```
 
+`research.log`, after an iterated item's final validate phase:
+```
+## <YYYY-MM-DD HH:MM> [<hash>-final] <topic> (iterations k/N, final)
+- status: replicated | not replicated | blocked
+- chosen: <hash>-<j>, outer-fold <metric> <score>
+- stopped: N reached | no improvement in two iterations | converged
+- result: <the saved model's primary metric vs the baseline on the held-out data, with the test and p value>
+- negative control: <its score and p value>
+- evidence: research/<topic>/<hash>-final/results/...
+```
+An iteration's own status doesn't decide the item; the final entry does.
+
 New containers a scientist reports go in `BioContainers/containers.md` (create it with this header if missing), one row each, skipping digests already listed:
 
 ```
@@ -98,7 +114,7 @@ New containers a scientist reports go in `BioContainers/containers.md` (create i
 | quay.io/biocontainers/samtools@sha256:<hash> | sort and index BAMs |
 ```
 
-- A round is done when its last phase is logged (a validated round after its validation entry). Research round done with rounds left: the line stays `- [ ]` and its count records progress, `(hypotheses: 3)` → `(hypotheses: 1/3)` → `(hypotheses: 2/3)`.
+- A round is done when its last phase is logged (a validated round after its validation entry). Research round done with rounds left: the line stays `- [ ]` and its count records progress, `(hypotheses: 3)` → `(hypotheses: 1/3)` → `(hypotheses: 2/3)`; iterations count the same way, and an item that stops early goes straight to its final phase.
 - Done (a task, or a topic's last round): `- [ ]` becomes `- [x]`, e.g. `- [x] topic (hypotheses: 3/3)`.
 - Blocked, failed, over a `Skill(check)` limit, or an agent's question (ponytail pushback included): `- [ ]` becomes `- [?]`, and the question (or the size/time estimate) goes on an indented line under the item, and in the log entry as `- question:`. Ask it in the CLI too if a user is present.
   ```
