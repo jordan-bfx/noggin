@@ -25,7 +25,7 @@ A research round runs in up to three phases, each its own scientist (`Skill(expe
 2. **Register:** you run `shasum -a 256 <plan>` and append a `registered` entry to `research.log` (template below) before spawning anything else for that round. Note which of the plan's validation paths already exist in `research/data/`.
 3. **Run:** a fresh scientist gets only the plan's path and its sha256, the limits and the round hash, and executes the plan on the discovery data. The validation data is held out from it.
 4. **Validate:** only if the run is `supported` and the plan names validation data. A third, fresh scientist gets the plan's path and sha256, the limits and the round hash, and nothing about the discovery results. It runs the same plan on the validation data: `replicated` or `not replicated`. With `validation: none`, the round ends `supported (unreplicated)`.
-   An iterated item has no validate phase per iteration. Keep going until N is reached, two iterations in a row don't beat the best outer-fold score, or a planner reports `converged`; then a fresh scientist runs the final validate phase as `<hash>-final`, on the chosen iteration's plan and saved model.
+   An iterated item has no validate phase per iteration. Keep going until N is reached, five iterations in a row don't beat the best outer-fold score, or a planner reports `converged`; then a fresh scientist runs the final validate phase as `<hash>-final`, on the chosen iteration's plan and saved model.
 
 Log each round or iteration as it finishes, before starting the next, so an interrupted pass resumes where it stopped. A round or iteration that is blocked, over a limit, or asks the user stops the item there: log it, leave the item `- [?]`, and run no more rounds for it (and no final phase). The other items in the pass carry on.
 
@@ -102,7 +102,7 @@ Append one entry per item, then update the item's checkbox in place:
 ## <YYYY-MM-DD HH:MM> [<hash>-final] <topic> (iterations k/N, final)
 - status: replicated | not replicated | blocked
 - chosen: <hash>-<j>, outer-fold <metric> <score>
-- stopped: N reached | no improvement in two iterations | converged
+- stopped: N reached | no improvement in five iterations | converged
 - result: <the saved model's primary metric vs the baseline on the held-out data, with the test and p value>
 - negative control: <its score and p value>
 - evidence: research/<topic>/<hash>-final/results/...
