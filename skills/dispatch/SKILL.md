@@ -17,7 +17,7 @@ One pass, then stop.
 ## 2. Dispatch
 Spawn sub-agents for the open items, using the Agent tool, at most 10 items per pass, in file order. Leave the rest `- [ ]` for the next pass.
 - `tasks.md` item: an **engineer** for code or pipelines, a **scientist** for analysis.
-- `research.md` item: **scientists**, round by round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Run every round of the item in this pass, one after another, until the count is met: the item counts as one of the 10, however many rounds it takes. Give each round's scientist the topic's earlier `research.log` entries, so the round builds on the last and doesn't repeat it. A prediction item tagged `(iterations: N)` runs iterations in place of rounds, as `<hash>-<k>` (`Skill(experiment)`, Iterated prediction items).
+- `research.md` item: **scientists**, round by round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Run every round of the item in this pass, one after another, until the count is met: the item counts as one of the 10, however many rounds it takes. Give each round's scientist the earlier `research.log` entries under this item's own hash, so the round builds on the last and doesn't repeat it. Entries under other hashes are a different item, even where the topic name matches: never count them as this item's rounds or pass them on as its history. A prediction item tagged `(iterations: N)` runs iterations in place of rounds, as `<hash>-<k>` (`Skill(experiment)`, Iterated prediction items).
 
 A research round runs in up to three phases, each its own scientist (`Skill(experiment)`), all in the same pass:
 1. **Plan:** the scientist writes `analysis_plan.md` (with discovery data, held-out validation data and a negative control), checks the limits, and stops. Nothing is downloaded or analyzed.
@@ -30,7 +30,7 @@ Log each round or iteration as it finishes, before starting the next, so an inte
 
 If the plan phase ends untestable, blocked or over a limit, there is no run phase, but the item's next round still runs. A round resumes at the first phase without a log entry: after `registered`, at the run; after a `supported` run with validation data, at validation.
 
-Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` without its trailing `(...)` tags. It stays the same across rounds and checkbox changes. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
+Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` with its trailing `(...)` tags removed and then any leading or trailing whitespace trimmed, so the same item always hashes the same way. It stays the same across rounds and checkbox changes. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
 
 Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. If the item has `Q:`/`A:` lines under it, include them: they are the user's answers from an earlier pass.
 
