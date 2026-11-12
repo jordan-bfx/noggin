@@ -10,6 +10,7 @@ One pass, then stop.
 ## 1. Read
 - `tasks.md` and `research.md` in the project root. An open item is a line `- [ ] ...`. Ignore `- [x]` (done) and `- [?]` (waiting on the user).
 - `tasks.log` and `research.log`, so you don't repeat work.
+- Compute every open item's hash before anything else and say it in your report, with the round you are starting and where that number came from. An item's state is only what is filed under its own hash: `[<hash>-...]` entries in the logs and `research/<topic>/<hash>-*` folders. Entries, folders and counts belonging to any other hash are a different item that happens to share a topic name, so a hash with nothing filed under it starts at round 1 — whatever sits beside it in that topic folder, and whatever the item line's count says.
 - If `graphify-out/` exists, give each agent a scoped `graphify query "<question>"` result, not the whole graph.
 - If `research.md` has open items, make sure `.gitignore` lists `research/data/` and `research/*/*/tmp/`; add the lines if missing. Downloads and intermediates never go in git.
 - Limits from `Skill(check)` (`noggin.conf`, or its defaults). Put them in every scientist's brief, with the noggin scripts path from your session context (for `fetch.sh`).
