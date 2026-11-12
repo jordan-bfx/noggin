@@ -27,7 +27,8 @@ while true; do
   now=$(sum)
   if [ "$now" != "$last" ]; then
     last=$now
-    # Re-dispatches while edits leave open items: multi-round research advances, and items over the 10-agent cap get their turn.
+    # Re-dispatches while edits leave open items: items over the 10-item cap get their turn, and an answered [?] item is retried.
+    # One dispatch finishes every round of an item it starts, so a research topic doesn't need a pass per round.
     if grep -Eqs '^[[:space:]]*- \[ \]' tasks.md research.md; then
       [ "$(date +%F)" != "$day" ] && day=$(date +%F) runs=0
       if [ "$runs" -ge "$max" ]; then

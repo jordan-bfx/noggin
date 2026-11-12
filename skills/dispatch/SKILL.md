@@ -17,16 +17,18 @@ One pass, then stop.
 ## 2. Dispatch
 Spawn sub-agents for the open items, using the Agent tool, at most 10 items per pass, in file order. Leave the rest `- [ ]` for the next pass.
 - `tasks.md` item: an **engineer** for code or pipelines, a **scientist** for analysis.
-- `research.md` item: a **scientist** for one round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Give the scientist the topic's earlier `research.log` entries, so each round builds on the last and doesn't repeat it. A prediction item tagged `(iterations: N)` runs iterations instead, one per pass, as rounds `<hash>-<k>` (`Skill(experiment)`, Iterated prediction items).
+- `research.md` item: **scientists**, round by round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Run every round of the item in this pass, one after another, until the count is met: the item counts as one of the 10, however many rounds it takes. Give each round's scientist the topic's earlier `research.log` entries, so the round builds on the last and doesn't repeat it. A prediction item tagged `(iterations: N)` runs iterations in place of rounds, as `<hash>-<k>` (`Skill(experiment)`, Iterated prediction items).
 
 A research round runs in up to three phases, each its own scientist (`Skill(experiment)`), all in the same pass:
 1. **Plan:** the scientist writes `analysis_plan.md` (with discovery data, held-out validation data and a negative control), checks the limits, and stops. Nothing is downloaded or analyzed.
 2. **Register:** you run `shasum -a 256 <plan>` and append a `registered` entry to `research.log` (template below) before spawning anything else for that round. Note which of the plan's validation paths already exist in `research/data/`.
 3. **Run:** a fresh scientist gets only the plan's path and its sha256, the limits and the round hash, and executes the plan on the discovery data. The validation data is held out from it.
 4. **Validate:** only if the run is `supported` and the plan names validation data. A third, fresh scientist gets the plan's path and sha256, the limits and the round hash, and nothing about the discovery results. It runs the same plan on the validation data: `replicated` or `not replicated`. With `validation: none`, the round ends `supported (unreplicated)`.
-   An iterated item has no validate phase per iteration. After its last iteration (N reached, two in a row without beating the best outer-fold score, or `converged`), a fresh scientist runs the final validate phase as `<hash>-final` in the same pass, on the chosen iteration's plan and saved model.
+   An iterated item has no validate phase per iteration. Keep going until N is reached, two iterations in a row don't beat the best outer-fold score, or a planner reports `converged`; then a fresh scientist runs the final validate phase as `<hash>-final`, on the chosen iteration's plan and saved model.
 
-If the plan phase ends untestable, blocked or over a limit, there is no run phase. A round resumes at the first phase without a log entry: after `registered`, at the run; after a `supported` run with validation data, at validation.
+Log each round or iteration as it finishes, before starting the next, so an interrupted pass resumes where it stopped. A round or iteration that is blocked, over a limit, or asks the user stops the item there: log it, leave the item `- [?]`, and run no more rounds for it (and no final phase). The other items in the pass carry on.
+
+If the plan phase ends untestable, blocked or over a limit, there is no run phase, but the item's next round still runs. A round resumes at the first phase without a log entry: after `registered`, at the run; after a `supported` run with validation data, at validation.
 
 Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` without its trailing `(...)` tags. It stays the same across rounds and checkbox changes. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
 
@@ -114,7 +116,7 @@ New containers a scientist reports go in `BioContainers/containers.md` (create i
 | quay.io/biocontainers/samtools@sha256:<hash> | sort and index BAMs |
 ```
 
-- A round is done when its last phase is logged (a validated round after its validation entry). Research round done with rounds left: the line stays `- [ ]` and its count records progress, `(hypotheses: 3)` → `(hypotheses: 1/3)` → `(hypotheses: 2/3)`; iterations count the same way, and an item that stops early goes straight to its final phase.
+- A round is done when its last phase is logged (a validated round after its validation entry). Research round done with rounds left: the line stays `- [ ]` and its count records progress, updated after each round so an interrupted pass resumes at the right one, `(hypotheses: 3)` → `(hypotheses: 1/3)` → `(hypotheses: 2/3)`; iterations count the same way, and an item that stops early goes straight to its final phase.
 - Done (a task, or a topic's last round): `- [ ]` becomes `- [x]`, e.g. `- [x] topic (hypotheses: 3/3)`.
 - Blocked, failed, over a `Skill(check)` limit, or an agent's question (ponytail pushback included): `- [ ]` becomes `- [?]`, and the question (or the size/time estimate) goes on an indented line under the item, and in the log entry as `- question:`. Ask it in the CLI too if a user is present.
   ```

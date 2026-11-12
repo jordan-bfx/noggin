@@ -53,7 +53,7 @@ In the project, run `/noggin:init` once, then write `- [ ] ...` lines in `tasks.
 ~/Documents/Github/noggin/watch.sh
 ```
 
-Research topics can set how many hypotheses to test, one per round: `- [ ] topic (hypotheses: 3)`, default 1. Each dispatch runs one round per topic, and the count advances (`1/3`, `2/3`, ...).
+Research topics can set how many hypotheses to test, one per round: `- [ ] topic (hypotheses: 3)`, default 1. One dispatch runs every round of a topic, logging each before the next, and the count advances (`1/3`, `2/3`, ...).
 
 Each round is pre-registered: a scientist writes the plan (discovery data, held-out validation data, a negative control), dispatch records its sha256, and a fresh scientist runs it on the discovery data. A `supported` result goes to a third scientist, who runs the same plan on the held-out data: `replicated` or `not replicated`. With no independent dataset it stays `supported (unreplicated)`. To choose the held-out data yourself, add `(validate: <accession>)` to the item. A significant negative control blocks the round: the pipeline is broken or gaming the test.
 
