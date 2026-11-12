@@ -31,7 +31,7 @@ Log each round or iteration as it finishes, before starting the next, so an inte
 
 If the plan phase ends untestable, blocked or over a limit, there is no run phase, but the item's next round still runs. A round resumes at the first phase without a log entry: after `registered`, at the run; after a `supported` run with validation data, at validation.
 
-Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` with its trailing `(...)` tags removed and then any leading or trailing whitespace trimmed, so the same item always hashes the same way. It stays the same across rounds and checkbox changes. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
+Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` with its trailing `(...)` tags removed and then any leading or trailing whitespace trimmed, so the same item always hashes the same way. It stays the same across rounds and checkbox changes, and changed text means a different item, never a line to correct. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
 
 Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. If the item has `Q:`/`A:` lines under it, include them: they are the user's answers from an earlier pass.
 
@@ -125,6 +125,8 @@ New containers a scientist reports go in `BioContainers/containers.md` (create i
     - Q: Trim adapters only, or quality-trim too?
   ```
   The user writes `  - A: <answer>` under it and sets the item back to `- [ ]` to retry. The next log entry for that item records the answer as `- answer:`. Leave the `Q:`/`A:` lines in place; the user tidies them.
+- Never change an item's text, in `tasks.md` or `research.md` alike. On an item line you may change the checkbox, and the count on a research item, nothing else: the text is the user's input and its hash is the item's identity. A line whose hash has nothing filed under it is a new item — a task not started, a research item at round 1 — even when a logged item shares its topic, its folder, its branch, or all but a word of its wording. Text that no longer matches a hash you have entries for means the user re-scoped the item: run it as new and say so in your report. A count that disagrees with the log is overwritten from the log; it is never a signal that the line needs repair.
+- Never rewrite a log entry. `tasks.log` and `research.log` are append-only: never edit, reword, re-date, re-hash, correct or delete an existing entry, your own from an earlier pass included, and never rewrite one to match an item line. A result that turns out wrong, a phase that has to be redone, a hash that was mis-set: all are superseded by a new entry that says so, never by changing the old one.
 
 Then clean up: for every item that became `- [x]` this pass (a task, or a research item's last round), run `<noggin scripts>/clean-tmp.sh <hash>` from the project root (the scripts path is in your session context). It deletes that item's `tmp/` folders: every research round's, and a kept worktree's on `noggin/<hash>`. `results/`, `command.sh`, logs and branches stay. Items still `- [ ]` or `- [?]` keep their `tmp/` for the next round or for debugging.
 
