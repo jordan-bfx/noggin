@@ -22,7 +22,7 @@ Spawn sub-agents for the open items, using the Agent tool, at most 10 items per 
 
 A research round runs in up to three phases, each its own scientist (`Skill(experiment)`), all in the same pass:
 1. **Plan:** the scientist writes `analysis_plan.md` (with discovery data, held-out validation data and a negative control), checks the limits, and stops. Nothing is downloaded or analyzed.
-2. **Register:** you run `shasum -a 256 <plan>` and append a `registered` entry to `research.log` (template below) before spawning anything else for that round. Note which of the plan's validation paths already exist in `research/data/`.
+2. **Register:** wait until the plan agent has finished, not just reported. Then run `shasum -a 256 <plan>`, copy the plan to `analysis_plan.registered.md` beside it, `chmod 444` both, and append a `registered` entry to `research.log` (template below) before spawning anything else for that round. Note which of the plan's validation paths already exist in `research/data/`.
 3. **Run:** a fresh scientist gets only the plan's path and its sha256, the limits and the round hash, and executes the plan on the discovery data. The validation data is held out from it.
 4. **Validate:** only if the run is `supported` and the plan names validation data. A third, fresh scientist gets the plan's path and sha256, the limits and the round hash, and nothing about the discovery results. It runs the same plan on the validation data: `replicated` or `not replicated`. With `validation: none`, the round ends `supported (unreplicated)`.
    An iterated item has no validate phase per iteration. Keep going until N is reached, five iterations in a row don't beat the best outer-fold score, or a planner reports `converged`; then a fresh scientist runs the final validate phase as `<hash>-final`, on the chosen iteration's plan and saved model.
@@ -46,7 +46,7 @@ IMPORTANT: If a scientist reports no testable data, the round still counts: log 
 ## 3. Verify
 A sub-agent saying it is done is a claim, not proof. Before accepting a result:
 - If engineer was dispatched: `Skill(verify)` must pass in its worktree. Then finish the worktree as `Skill(worktree)` says.
-- If scientist was dispatched: the reported numbers must trace to a file or a DOI you can open, and `shasum -a 256` of the plan must still match its `registered` entry. A mismatch makes the round blocked, with the question "plan changed after registration".
+- If scientist was dispatched: the reported numbers must trace to a file or a DOI you can open, and `shasum -a 256` of the plan must still match its `registered` entry. On a mismatch, `diff` the plan against `analysis_plan.registered.md`, restore the registered bytes from the copy, and append a `plan-edit-reverted` entry (template below). If the diff changes the hypothesis, data, test, decision rule or negative control, the round is blocked with "plan changed after registration"; otherwise it carries on. Entries in `deviations.md` are permissible, not a question for the user; peer-review judges them.
 - Iterated items: at iteration 1's registration, record the sha256 of its fixed inputs (`discovery_ids.tsv`, `folds.tsv`, `permuted_labels.tsv`, and `heldout_ids.tsv` if any). Every later plan must name the same files; check their hashes at every registration, run and the final validate phase. A mismatch blocks the item with "fixed inputs changed".
 - After a run: the negative control must be reported and null, or the round is blocked with "negative control failed". Validation paths that didn't exist at registration but exist now mean the run touched held-out data: the round is blocked with "validation data opened during the run", and no validate phase follows.
 - Both must provide records following the template below.
@@ -68,6 +68,15 @@ Append one entry per item, then update the item's checkbox in place:
 - status: registered
 - plan: research/<topic>/<hash>-<k>/analysis_plan.md sha256:<64 hex>
 - fixed: <iterated items, iteration 1 only: each fixed input's path sha256:<64 hex>>
+```
+
+`research.log`, when a plan edit is reverted (doesn't advance the count):
+```
+## <YYYY-MM-DD HH:MM> [<hash>-<k>] <topic> (round k/N)
+- status: plan-edit-reverted
+- found: sha256:<64 hex>, registered sha256:<64 hex>
+- diff: <the diff, verbatim>
+- operative: yes (round blocked) | no
 ```
 
 `research.log`, after the run phase (or a plan phase that ended the round):

@@ -6,8 +6,8 @@ description: Test one hypothesis on public omics data (genomics, epigenomics, bu
 # Experiment
 
 Each round is up to three agents; your brief says which phase you are.
-- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis. Dispatch then registers the plan's sha256, and a fresh scientist runs it.
-- **Run phase:** your brief gives the plan's path and sha256. First check `shasum -a 256 <plan>` matches; if not, stop and report it. Then Analysis steps 2-3 and Results on the **discovery** data, following the plan exactly. Never download or open the validation data: it is held out, like a benchmark's gold standard. Never edit the plan.
+- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis. Leave nothing running in the background: your report is your last action, and you never touch the plan after it. Dispatch then registers the plan's sha256, and a fresh scientist runs it.
+- **Run phase:** your brief gives the plan's path and sha256. First check `shasum -a 256 <plan>` matches; if not, stop and report it. Then Analysis steps 2-3 and Results on the **discovery** data, following the plan exactly. Never download or open the validation data: it is held out, like a benchmark's gold standard. Never edit the plan; record any departure from it in `deviations.md` (see Method).
 - **Validate phase** (only after a `supported` run; for an iterated prediction item, once at the end, see below): your brief gives the plan's path and sha256 and nothing about the discovery results; don't read them. Check the hash, then run the same plan, unchanged, on the **validation** data: same preprocessing, test, decision rule and negative control. Work in `research/<topic>/<hash>-<k>/validation/` (`results/`, `command.sh`; intermediates in the round's `tmp/validation/`). Report `replicated` if the decision rule is met with the effect in the same direction as the hypothesis and the negative control stays null; otherwise `not replicated`.
 
 ## Hypothesis
@@ -22,7 +22,7 @@ Each round is up to three agents; your brief says which phase you are.
    - tools, parameters, preprocessing and expected outputs;
    - the statistical test and the decision rule: supported if p < 0.05, or q < 0.05 (Benjamini-Hochberg FDR) when there is more than one test. No effect-size or fold-change threshold. State the direction of effect the hypothesis predicts;
    - a negative control that must come out null, run through the same pipeline and test: by default the same analysis with the group labels permuted; or a comparison where no effect is expected. If it is significant, the pipeline is broken, leaking or gaming the test, and the result is not trusted.
-   Once dispatch registers its sha256, the plan is frozen. A deviation in the run phase gets its own note in the results, with the reason.
+   Once dispatch registers its sha256, the plan is frozen and read-only: never write to it, not even to record a deviation. Any departure from it in the run or validate phase (a missing dependency, a new image digest, a changed parameter, a probe result) goes in `deviations.md` beside the plan, one entry each: what changed, why, and whether it touches the hypothesis, data, test, decision rule or negative control. A missing dependency means a new pinned image or Dockerfile (step 2), recorded there; it is not a reason to stop.
 
    **Prediction items.** An item tagged `(metric: ...)` builds a predictive model. Its plan holds everything above, with these in place of the statistical test and decision rule:
    - the target, the features, and the model family;
