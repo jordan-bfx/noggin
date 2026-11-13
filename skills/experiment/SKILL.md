@@ -6,7 +6,7 @@ description: Test one hypothesis on public omics data (genomics, epigenomics, bu
 # Experiment
 
 Each round is up to three agents; your brief says which phase you are.
-- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis. Leave nothing running in the background: your report is your last action, and you never touch the plan after it. Dispatch then registers the plan's sha256, and a fresh scientist runs it.
+- **Plan phase:** Hypothesis, Method, and Analysis step 1. Report the plan's path and stop. Download no data and run no analysis, probe or test run. Leave nothing running in the background: your report is your last action, and you never touch the plan after it. Dispatch then registers the plan's sha256, and a fresh scientist runs it.
 - **Run phase:** your brief gives the plan's path and sha256. First check `shasum -a 256 <plan>` matches; if not, stop and report it. Then Analysis steps 2-3 and Results on the **discovery** data, following the plan exactly. Never download or open the validation data: it is held out, like a benchmark's gold standard. Never edit the plan; record any departure from it in `deviations.md` (see Method).
 - **Validate phase** (only after a `supported` run; for an iterated prediction item, once at the end, see below): your brief gives the plan's path and sha256 and nothing about the discovery results; don't read them. Check the hash, then run the same plan, unchanged, on the **validation** data: same preprocessing, test, decision rule and negative control. Work in `research/<topic>/<hash>-<k>/validation/` (`results/`, `command.sh`; intermediates in the round's `tmp/validation/`). Report `replicated` if the decision rule is met with the effect in the same direction as the hypothesis and the negative control stays null; otherwise `not replicated`.
 
@@ -58,6 +58,7 @@ Each round is up to three agents; your brief says which phase you are.
    - Else a BioContainers image from quay.io, pinned by digest: `docker pull <image>`, then `docker inspect --format '{{index .RepoDigests 0}}' <image>` gives `quay.io/biocontainers/<tool>@sha256:<hash>`. Report it with a one-line purpose; dispatch adds it to the table.
    - Else write a Dockerfile with pinned versions to `dockerfiles/<name>.Dockerfile` (it exists nowhere else, so it must be kept).
    Name the container by its digest or Dockerfile path in the plan and in the log's `method` line.
+   - Before reporting the plan, check that every tool and package the plan uses runs in that container, with no data mounted: each tool's `--version`, each package's `python -c 'import <pkg>'` (or `Rscript -e 'library(<pkg>)'`). Fix the container until all of them pass, so the run phase never has to add a dependency.
 
 ## Analysis
 1. Unless the item says `(approved)`, check the limits in your brief first, as `Skill(check)` describes: the download size of the data the plan names (its subset, if it downsamples) and the plan's run-time estimate. Over a limit even with the subset, or size unknown: report the estimate and stop.
