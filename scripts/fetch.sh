@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Downloads public data for noggin scientists: only from the sources listed in research/datasets.md, only into research/data/.
-#   fetch.sh <url> <research/data/...>   download a file; skips one that already exists
+#   fetch.sh <url> <research/data/...>   download a file; skips one that already exists, resumes a partial one
 #   fetch.sh --size <url>                print its size in bytes, or "unknown"
 #   fetch.sh --print <url>               print a small response (API metadata, listings), at most 10 MB
 # Run from the project root. A URL is allowed when it starts with a `prefix/` in the download column of research/datasets.md.
@@ -51,6 +51,12 @@ case "$real/" in "$(pwd -P)/research/data/"*) ;; *) refuse "destination resolves
 
 if [ -e "$dest" ]; then echo "fetch: exists $dest"; exit 0; fi
 # Download beside the target, then rename: an interrupted download never looks complete.
-curl -fL --retry 3 -o "$dest.part" "$url"
+# -C - resumes from whatever a killed run left in .part; 33/36 mean the server won't serve ranges, so start over.
+curl -fL --retry 3 -C - -o "$dest.part" "$url" || {
+  s=$?
+  [ "$s" = 33 ] || [ "$s" = 36 ] || exit "$s"
+  rm -f "$dest.part"
+  curl -fL --retry 3 -o "$dest.part" "$url"
+}
 mv "$dest.part" "$dest"
 echo "fetch: saved $dest ($(wc -c < "$dest" | tr -d ' ') bytes)"

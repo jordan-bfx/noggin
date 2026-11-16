@@ -46,6 +46,7 @@ Checked 2026-11-10: every prefix below served a real file or API response, excep
 |---|---|---|---|---|
 | NCBI (GEO, SRA metadata, RefSeq, dbSNP, ClinVar) | NIH | `https://ftp.ncbi.nlm.nih.gov/` `https://www.ncbi.nlm.nih.gov/geo/download/` `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/` | any | |
 | ENA (SRA reads as FASTQ) | EMBL-EBI | `https://ftp.sra.ebi.ac.uk/` `https://www.ebi.ac.uk/ena/portal/api/` | fastq.gz | filereport gives `fastq_ftp`, `fastq_bytes`, `fastq_md5` |
+| SRA Open Data (reads as .sra) | NIH / AWS Open Data | `https://sra-pub-run-odp.s3.amazonaws.com/` | sra | normalized SRA at `sra/<run>/<run>`; convert with `fasterq-dump`; md5 via eutils `efetch -db sra -id <run>` SRAfile |
 | LINCS / Connectivity Map | Broad | (via GEO) | gctx | L1000: GSE92742, GSE70138 |
 | Ensembl | EMBL-EBI | `https://ftp.ensembl.org/pub/` | FASTA, GTF | |
 | UCSC Genome Browser | UC Santa Cruz | `https://hgdownload.soe.ucsc.edu/` | FASTA, bigBed, chain | |
