@@ -13,9 +13,11 @@ skills/worktree           one worktree + branch per writing agent; the user merg
 skills/check              /noggin:check: download, run-time and spend limits in noggin.conf
 skills/log                /noggin:log: every log entry with its hash; /noggin:log <hash> for details
 skills/peer-review        /noggin:peer-review <hash>[-<k>]: three independent reviewers, verdict in the log
+skills/cleanup            /noggin:cleanup [<hash>[-<k>]]: deletes an item's (or round's) folders and worktree; no hash = every item
 agents/                   engineer, scientist
 watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]; the user manages research/data/.
+scripts/cleanup.sh        run by /noggin:cleanup; -n lists without deleting
 scripts/init.sh           run by /noggin:init; creates only what is missing
 scripts/fetch.sh          omics downloads: prefixes in research/datasets.md only, into research/data/ only
 templates/datasets.md     curated sources (Arc, CELLxGENE, ENCODE, NCBI, PRIDE, ...); /noggin:init copies it to research/
