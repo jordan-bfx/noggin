@@ -6,7 +6,7 @@ A Claude Code plugin for deterministic engineering and science. Turn it on in an
 
 ```
 CLAUDE.md                 house rules, injected at session start with the project's graphify report (hooks/)
-skills/init               /noggin:init: creates tasks.md, research.md, their logs, research/data/, research/datasets.md, noggin.conf
+skills/init               /noggin:init: creates tasks.md, research.md, their logs, research/data/, research/datasets.md, noggin.conf, watch.sh
 skills/dispatch           tasks.md + research.md -> engineers/scientists -> tasks.log + research.log
 skills/verify             nf-test snapshots, built from tests/data/
 skills/worktree           one worktree + branch per writing agent; the user merges
@@ -15,12 +15,12 @@ skills/log                /noggin:log: every log entry with its hash; /noggin:lo
 skills/peer-review        /noggin:peer-review <hash>[-<k>]: three independent reviewers, verdict in the log
 skills/cleanup            /noggin:cleanup [<hash>[-<k>]]: deletes an item's (or round's) folders and worktree; no hash = every item
 agents/                   engineer, scientist
-watch.sh                  re-dispatches when tasks.md or research.md gets an open item
 scripts/clean-tmp.sh      deletes an item's tmp/ folders once it is [x]; the user manages research/data/.
 scripts/cleanup.sh        run by /noggin:cleanup; -n lists without deleting
 scripts/init.sh           run by /noggin:init; creates only what is missing
 scripts/fetch.sh          omics downloads: prefixes in research/datasets.md only, into research/data/ only
 templates/datasets.md     curated sources (Arc, CELLxGENE, ENCODE, NCBI, PRIDE, ...); /noggin:init copies it to research/
+templates/watch.sh        dispatches every 30 minutes while items are open; /noggin:init copies it to the project root
 ```
 
 ## Install
@@ -49,11 +49,13 @@ Optional: [ponytail](https://github.com/DietrichGebert/ponytail). With it instal
 
 ## Use
 
-In the project, run `/noggin:init` once, then write `- [ ] ...` lines in `tasks.md` (coding or analysis) or `research.md` (topics to research). Then either run `/noggin:dispatch`, or start the watcher:
+In the project, run `/noggin:init` once, then write `- [ ] ...` lines in `tasks.md` (coding or analysis) or `research.md` (topics to research). Then either run `/noggin:dispatch` for one pass, or start the watcher from the project root and leave it running:
 
 ```bash
-~/Documents/Github/noggin/watch.sh
+./watch.sh                # caffeinate -i ./watch.sh keeps a Mac awake overnight
 ```
+
+Every 30 minutes, if an item is open, it runs one headless dispatch pass. A pass that hits a usage limit stops, and a later one resumes from the logs. `dispatch.lock` keeps a watcher pass and a `/noggin:dispatch` from running at once. Headless passes can't ask permission: they may use only the `allow=` rules in `noggin.conf` and never the `deny=` rules. Edit those lines to change what a pass may run.
 
 Research topics can set how many hypotheses to test, one per round: `- [ ] topic (hypotheses: 3)`, default 1. One dispatch runs every round of a topic, logging each before the next, and the count advances (`1/3`, `2/3`, ...).
 

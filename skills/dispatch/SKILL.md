@@ -7,6 +7,8 @@ description: Dispatch engineer and scientist sub-agents for the open items in th
 
 One pass, then stop.
 
+Only one pass runs at a time, guarded by `dispatch.lock` in the project root. Run as `/noggin:dispatch watch`, `watch.sh` already holds the lock for you: skip this. Otherwise, before anything else: if `dispatch.lock` exists, another pass is running, so stop and tell the user. The exception is a stale lock: its first word is a PID that is no longer running (`kill -0 <pid>` fails), or it says `interactive` and is older than `max_run_hours`. Replace a stale lock; if there is none, write `interactive <YYYY-MM-DD HH:MM>` to `dispatch.lock`. Delete it as your last step, after the report.
+
 ## 1. Read
 - `tasks.md` and `research.md` in the project root. An open item is a line `- [ ] ...`. Ignore `- [x]` (done) and `- [?]` (waiting on the user). Indented `- ...` lines under an item, up to the next item line, belong to it: `- Q:` and `- A:` lines are questions and the user's answers, and every other line is a user note. A note never starts with a checkbox.
 - `tasks.log` and `research.log`, so you don't repeat work.

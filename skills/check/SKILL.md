@@ -16,9 +16,11 @@ max_budget_usd=20
 
 Those are the defaults when the file or a key is missing.
 
+`noggin.conf` also holds the `allow=` and `deny=` lines `watch.sh` passes to its headless dispatch passes, one permission rule per line (`/noggin:init` writes the defaults). Edit them by hand; this skill shows and sets only the three limits. Whatever those lines say, `watch.sh` always denies edits to `noggin.conf`, `watch.sh` and `research/datasets.md`, so a pass can't widen the next pass's permissions or limits.
+
 ## Usage
 - `/noggin:check` with no arguments: print the current limits and whether each comes from `noggin.conf` or a default.
-- `/noggin:check <key> <value>`, e.g. `/noggin:check max_download_gb 50`: set that key, keeping the other lines. Only the three keys above; refuse anything else. The value must be a positive number.
+- `/noggin:check <key> <value>`, e.g. `/noggin:check max_download_gb 50`: set that key, keeping the other lines. Only the three keys above; refuse anything else, `allow` and `deny` included. The value must be a positive number.
 
 ## How each limit is enforced
 - `max_budget_usd`: `watch.sh` passes it to `claude -p --max-budget-usd`, so a dispatch pass stops when it has spent that much. A pass stopped this way leaves its items open, and the next pass retries them. Interactive `/noggin:dispatch` runs have no spend cap.
