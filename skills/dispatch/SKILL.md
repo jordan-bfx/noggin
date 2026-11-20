@@ -19,7 +19,7 @@ Only one pass runs at a time, guarded by `dispatch.lock` in the project root. Ru
 
 ## 2. Dispatch
 Spawn sub-agents for the open items, using the Agent tool, at most 10 items per pass, in file order. Leave the rest `- [ ]` for the next pass.
-- `tasks.md` item: an **engineer** for code or pipelines, a **scientist** for analysis.
+- `tasks.md` item: an **engineer** for code or pipelines.
 - `research.md` item: **scientists**, round by round. A round tests exactly one hypothesis. The line sets the number of rounds, e.g. `- [ ] topic (hypotheses: 3)`; with no count it gets 1. Run every round of the item in this pass, one after another, until the count is met: the item counts as one of the 10, however many rounds it takes. Give each round's scientist the earlier `research.log` entries under this item's own hash, so the round builds on the last and doesn't repeat it. Entries under other hashes are a different item, even where the topic name matches: never count them as this item's rounds or pass them on as its history. A prediction item tagged `(iterations: N)` runs iterations in place of rounds, as `<hash>-<k>` (`Skill(experiment)`, Iterated prediction items).
 
 A research round runs in up to five phases, all in the same pass. Plan, run and validate are each done by a fresh scientist (`Skill(experiment)`); review and register are done by you:
