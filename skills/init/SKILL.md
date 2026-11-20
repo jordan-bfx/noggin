@@ -1,6 +1,6 @@
 ---
 name: init
-description: Set up a project for noggin: tasks.md, research.md, their logs, research/data/, noggin.conf (limits and watch.sh's permission rules), watch.sh and the .gitignore lines. Use for "/noggin:init", or when asked to set up noggin in a project.
+description: Set up a project for noggin: tasks.md, research.md, their logs, research/data/, noggin.conf (limits and watch.sh's permission rules), watch.sh, the deny rules in .claude/settings.json and the .gitignore lines. Use for "/noggin:init", or when asked to set up noggin in a project.
 disable-model-invocation: true
 allowed-tools: Bash(*/scripts/init.sh)
 ---

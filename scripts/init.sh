@@ -73,3 +73,38 @@ if [ -e research/datasets.md ]; then say exists research/datasets.md; else cp "$
 for l in 'research/data/' 'research/*/*/tmp/' 'dispatch.lock'; do
   if grep -qxF "$l" .gitignore; then say exists ".gitignore: $l"; else echo "$l" >> .gitignore; say added ".gitignore: $l"; fi
 done
+
+# Last, so everything above exists even if this step stops init: the deny= rules for every Claude session in the
+# project, /noggin:dispatch by hand included, merged into .claude/settings.json without touching anything else in it.
+# Written to .claude/settings.json.tmp and renamed over the original, so a crash never leaves it half-written.
+deny=$(printf '%s' "$rules" | sed -n 's/^deny=//p')
+fail() { say error ".claude/settings.json: $1, then re-run /noggin:init" >&2; exit 1; }
+python3 -c '' 2>/dev/null || fail "needs python3 (on macOS: xcode-select --install, the same tools git needs)"
+out=$(python3 - "$deny" 2>&1 <<'PY'
+import json, os, sys
+path, rules = '.claude/settings.json', sys.argv[1].splitlines()
+existed = os.path.exists(path)
+try:
+    s = json.load(open(path, encoding='utf-8')) if existed else {}
+except ValueError as e:
+    sys.exit('error not valid JSON (%s), so Claude Code ignores it too; fix it' % e)
+p = s.setdefault('permissions', {}) if isinstance(s, dict) else None
+d = p.setdefault('deny', []) if isinstance(p, dict) else None
+if not isinstance(d, list):
+    sys.exit('error permissions.deny must be a list inside a permissions object; fix it')
+new = [r for r in rules if r not in d]
+if not new:
+    print('exists deny rules'); sys.exit()
+d.extend(new)
+os.makedirs('.claude', exist_ok=True)
+with open(path + '.tmp', 'w', encoding='utf-8') as f:
+    json.dump(s, f, indent=2, ensure_ascii=False); f.write('\n')
+os.replace(path + '.tmp', path)
+print(('added' if existed else 'created'), '%d deny rules' % len(new))
+PY
+) || true
+case "$out" in
+  exists*|added*|created*) say "${out%% *}" ".claude/settings.json: ${out#* }" ;;
+  error*) fail "${out#error }" ;;
+  *) fail "python3 failed ($(printf '%s' "$out" | tail -1))" ;;
+esac

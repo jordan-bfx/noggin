@@ -55,7 +55,7 @@ In the project, run `/noggin:init` once, then write `- [ ] ...` lines in `tasks.
 ./watch.sh                # caffeinate -i ./watch.sh keeps a Mac awake overnight
 ```
 
-Every 30 minutes, if an item is open, it runs one headless dispatch pass. A pass that hits a usage limit stops, and a later one resumes from the logs. `dispatch.lock` keeps a watcher pass and a `/noggin:dispatch` from running at once. Headless passes can't ask permission: they may use only the `allow=` rules in `noggin.conf` and never the `deny=` rules. Edit those lines to change what a pass may run.
+Every 30 minutes, if an item is open, it runs one headless dispatch pass. A pass that hits a usage limit stops, and a later one resumes from the logs. `dispatch.lock` keeps a watcher pass and a `/noggin:dispatch` from running at once. Headless passes can't ask permission: they may use only the `allow=` rules in `noggin.conf` and never the `deny=` rules. Edit those lines to change what a pass may run. `/noggin:init` also adds the `deny=` rules to `.claude/settings.json`, so they hold for every Claude session in the project, `/noggin:dispatch` by hand included: no git push, merge, rebase or reset, no `rm -rf`, no network override for containers, and no `nf-test --update-snapshot`.
 
 Research topics can set how many hypotheses to test, one per round: `- [ ] topic (hypotheses: 3)`, default 1. One dispatch runs every round of a topic, logging each before the next, and the count advances (`1/3`, `2/3`, ...).
 
