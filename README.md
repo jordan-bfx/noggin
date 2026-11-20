@@ -61,7 +61,14 @@ Each round is pre-registered: a scientist writes the plan (discovery data, held-
 
 Prediction modeling goes in `research.md` too: tag the item with its primary metric, e.g. `- [ ] Predict drug response from baseline expression (metric: AUROC)`, or leave it empty, `(metric:)`, for the planning scientist to choose one (RMSE, MAE, AUROC, AUPRC, F1, MCC, macro-F1, balanced accuracy, C-index). The model must beat a pre-registered baseline (p < 0.05), is trained only on discovery data, and is scored once on the held-out data. Add `(iterations: N)` to improve the model over up to N passes: every iteration uses the same discovery samples, folds, permuted labels and held-out data, and only the best iteration is scored on the held-out data, once, at the end.
 
-Items become `[x]` when done or `[?]` when an agent needs you, with its question underneath. Write your answer on a new line below it, then set the item back to `[ ]`:
+Add context to any item with indented notes under it. Notes go to the item's agents (for research, the plan scientist) and don't change the item's identity, so its rounds and branch carry on:
+```
+- [ ] add fastp step to qc pipeline
+  - our reads are 2x150 NovaSeq
+  - keep the existing MultiQC report
+```
+
+Items become `[x]` when done or `[?]` when an agent needs you, with its question underneath. Write your answer on a new line below it, starting with `A:` (a plain note isn't an answer), then set the item back to `[ ]`:
 ```
 - [ ] add fastp step to qc pipeline
   - Q: Trim adapters only, or quality-trim too?

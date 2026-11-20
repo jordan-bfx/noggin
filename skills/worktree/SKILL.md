@@ -15,7 +15,7 @@ Parallel agents in one checkout break each other's edits and each other's `Skill
   - Not found: spawn the agent with the Agent tool's `isolation: "worktree"`.
 - Every brief has:
   - the branch name `noggin/<hash>`, using the item's hash from dispatch;
-  - on a retry, the item's earlier log entries and its `Q:`/`A:` lines;
+  - the item's notes, and on a retry its earlier log entries and its `Q:`/`A:` lines;
   - the project root's absolute path. Untracked inputs (`research/data/`, `tests/data/` if ignored, `graphify-out/`) exist only there: read them by absolute path, never write there.
 
 ## Inside (the agent)

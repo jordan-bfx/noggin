@@ -8,7 +8,7 @@ description: Dispatch engineer and scientist sub-agents for the open items in th
 One pass, then stop.
 
 ## 1. Read
-- `tasks.md` and `research.md` in the project root. An open item is a line `- [ ] ...`. Ignore `- [x]` (done) and `- [?]` (waiting on the user).
+- `tasks.md` and `research.md` in the project root. An open item is a line `- [ ] ...`. Ignore `- [x]` (done) and `- [?]` (waiting on the user). Indented `- ...` lines under an item, up to the next item line, belong to it: `- Q:` and `- A:` lines are questions and the user's answers, and every other line is a user note. A note never starts with a checkbox.
 - `tasks.log` and `research.log`, so you don't repeat work.
 - Compute every open item's hash before anything else and say it in your report, with the round you are starting and where that number came from. An item's state is only what is filed under its own hash: `[<hash>-...]` entries in the logs and `research/<topic>/<hash>-*` folders. Entries, folders and counts belonging to any other hash are a different item that happens to share a topic name, so a hash with nothing filed under it starts at round 1 — whatever sits beside it in that topic folder, and whatever the item line's count says.
 - If `graphify-out/` exists, give each agent a scoped `graphify query "<question>"` result, not the whole graph.
@@ -34,7 +34,7 @@ If the plan phase ends untestable, blocked or over a limit, there is no run phas
 
 Every item has a hash: the first 7 characters of `printf '%s' "<text>" | shasum -a 1`, where `<text>` is the line after `- [ ] ` with its trailing `(...)` tags removed and then any leading or trailing whitespace trimmed, so the same item always hashes the same way. It stays the same across rounds and checkbox changes, and changed text means a different item, never a line to correct. A research round is `<hash>-<k>`, e.g. `3f9a1c2-2`. Put the hash in the brief.
 
-Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. If the item has `Q:`/`A:` lines under it, include them: they are the user's answers from an earlier pass.
+Each brief states the item verbatim, its inputs, what done looks like, and what it must not touch. Include the item's notes and its `Q:`/`A:` lines verbatim: the notes are the user's context, the `A:` lines their answers from an earlier pass. In a research round only the plan scientist gets them; the run and validate scientists get only the registered plan, so a note added mid-item shapes the next round's plan, never a registered one.
 
 Engineer briefs also say: if ponytail is loaded, work at its ultra level. Before building, push back on any part of the item the need doesn't justify, and report the pushback as a question.
 
@@ -61,6 +61,7 @@ Append one entry per item, then update the item's checkbox in place:
 - status: done | blocked
 - proof: <check run and its result>
 - where: <files or branch>
+- notes: <the item's notes as briefed, verbatim, or none>
 ```
 
 `research.log`, after the plan phase (doesn't advance the count):
@@ -69,6 +70,7 @@ Append one entry per item, then update the item's checkbox in place:
 - status: registered
 - plan: research/<topic>/<hash>-<k>/analysis_plan.md sha256:<64 hex>
 - review: <passed first time | sent back n time(s): what each review found and what changed>
+- notes: <the item's notes as briefed to the plan scientist, verbatim, or none>
 - fixed: <iterated items, iteration 1 only: each fixed input's path sha256:<64 hex>>
 ```
 
@@ -135,8 +137,8 @@ New containers a scientist reports go in `BioContainers/containers.md` (create i
   - [?] add fastp step to qc pipeline
     - Q: Trim adapters only, or quality-trim too?
   ```
-  The user writes `  - A: <answer>` under it and sets the item back to `- [ ]` to retry. The next log entry for that item records the answer as `- answer:`. Leave the `Q:`/`A:` lines in place; the user tidies them.
-- Never change an item's text, in `tasks.md` or `research.md` alike. On an item line you may change the checkbox, and the count on a research item, nothing else: the text is the user's input and its hash is the item's identity. A line whose hash has nothing filed under it is a new item — a task not started, a research item at round 1 — even when a logged item shares its topic, its folder, its branch, or all but a word of its wording. Text that no longer matches a hash you have entries for means the user re-scoped the item: run it as new and say so in your report. A count that disagrees with the log is overwritten from the log; it is never a signal that the line needs repair.
+  The user writes `  - A: <answer>` under it and sets the item back to `- [ ]` to retry. The next log entry for that item records the answer as `- answer:`. Answers are always `A:` lines, never notes. Leave the `Q:`/`A:` lines in place; the user tidies them.
+- Never change an item's text or its notes, in `tasks.md` or `research.md` alike. Notes aren't part of the hash: adding or editing one keeps the item's identity. On an item line you may change the checkbox, and the count on a research item, nothing else: the text is the user's input and its hash is the item's identity. A line whose hash has nothing filed under it is a new item — a task not started, a research item at round 1 — even when a logged item shares its topic, its folder, its branch, or all but a word of its wording. Text that no longer matches a hash you have entries for means the user re-scoped the item: run it as new and say so in your report. A count that disagrees with the log is overwritten from the log; it is never a signal that the line needs repair.
 - Never rewrite a log entry. `tasks.log` and `research.log` are append-only: never edit, reword, re-date, re-hash, correct or delete an existing entry, your own from an earlier pass included, and never rewrite one to match an item line. A result that turns out wrong, a phase that has to be redone, a hash that was mis-set: all are superseded by a new entry that says so, never by changing the old one.
 
 Then clean up: for every item that became `- [x]` this pass (a task, or a research item's last round), run `<noggin scripts>/clean-tmp.sh <hash>` from the project root (the scripts path is in your session context). It deletes that item's `tmp/` folders: every research round's, and a kept worktree's on `noggin/<hash>`. `results/`, `command.sh`, logs and branches stay. Items still `- [ ]` or `- [?]` keep their `tmp/` for the next round or for debugging.
